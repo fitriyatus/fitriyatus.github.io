@@ -8,8 +8,8 @@
     </td>
     <td>
       <strong>Education:</strong><br>
-      🎓 <b>Airlangga University</b> | Japanese Studies (2012-2019) [cite: 19] <br>
-      🎓 <b>RevoU</b> | Full Stack Data Analytics (2025) [cite: 147] <br><br>
+      🎓 <b> <img src="assets/unair.png" width="250px" style="border-radius: 20px; border: 2px solid #4B3621;" />Airlangga University</b> | Japanese Studies (2012-2019) [cite: 19] <br>
+      🎓 <b> <img src="assets/revoU.png" width="250px" style="border-radius: 20px; border: 2px solid #4B3621;" />RevoU</b> | Full Stack Data Analytics (2025) [cite: 147] <br><br>
       <strong>Working Experience:</strong><br>
       💼 <b>Staff</b> - SRC Cerme [cite: 29]<br><br>
       <strong>Tools:</strong><br>
