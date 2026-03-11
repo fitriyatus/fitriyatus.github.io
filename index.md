@@ -66,7 +66,7 @@
 
 <h2 align="center">Certificates</h2>
 <p align="center">
-  <img src="assets/revou_certificate.png" width="350px" />
+  <pdf src="assets/Fitriyatus Sholihah-FSDA-2026-03-36982485677-Certificate of Achievement.pdf" width="250px" />
   <img src="assets/ai_certificate.png" width="350px" />
 </p>
 
