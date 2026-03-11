@@ -9,9 +9,9 @@
     <td>
       <strong>Education:</strong><br>
        <b> <img src="assets/Lambang-Universitas-Airlangga-bg-transparan.png" width="25px" style="border-radius: 20px; border: 2px solid #4B3621;" /> Airlangga University</b> | Japanese Studies (2012-2019)  <br>
-      🎓 <b> <img src="assets/revoU.png" width="250px" style="border-radius: 20px; border: 2px solid #4B3621;" />RevoU</b> | Full Stack Data Analytics (2025) [cite: 147] <br><br>
+       <b> <img src="assets/RevoU_Logo (1).png" width="25px" style="border-radius: 20px; border: 2px solid #4B3621;" /> RevoU</b> | Full Stack Data Analytics (2025)  <br><br>
       <strong>Working Experience:</strong><br>
-      💼 <b>Staff</b> - SRC Cerme [cite: 29]<br><br>
+      💼 <b>Staff</b> - SRC Cerme (2019-Present) <br><br>
       <strong>Tools:</strong><br>
       <img src="https://img.shields.io/badge/SQL-4B3621?style=flat&logo=postgresql&logoColor=white" /> 
       <img src="https://img.shields.io/badge/Python-4B3621?style=flat&logo=python&logoColor=white" />
