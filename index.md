@@ -8,10 +8,10 @@
     </td>
     <td>
       <strong>Education:</strong><br>
-       <b> <img src="assets/Lambang-Universitas-Airlangga-bg-transparan.png" width="25px" style="border-radius: 20px; border: 2px solid #4B3621;" /> Airlangga University</b> | Japanese Studies (2012-2019)  <br>
-       <b> <img src="assets/RevoU_Logo (1).png" width="25px" style="border-radius: 20px; border: 2px solid #4B3621;" /> RevoU</b> | Full Stack Data Analytics (2025)  <br><br>
+       <b> <img src="assets/Lambang-Universitas-Airlangga-bg-transparan.png" width="25px" /> Airlangga University</b> | Japanese Studies (2012-2019) [cite: 19] <br>
+       <b> <img src="assets/RevoU_Logo (1).png" width="25px" /> RevoU</b> | Full Stack Data Analytics (2025) [cite: 23, 146] <br><br>
       <strong>Working Experience:</strong><br>
-      💼 <b>Staff</b> - SRC Cerme (2019-Present) <br><br>
+      💼 <b>Staff</b> - SRC Cerme (2019-Present) [cite: 29] <br><br>
       <strong>Tools:</strong><br>
       <img src="https://img.shields.io/badge/SQL-4B3621?style=flat&logo=postgresql&logoColor=white" /> 
       <img src="https://img.shields.io/badge/Python-4B3621?style=flat&logo=python&logoColor=white" />
@@ -22,7 +22,7 @@
 </table>
 
 <p align="center">
-  <a href="YOUR_CV_LINK">
+  <a href="assets/CV (ATS) Fitriyatus Sholihah.pdf">
     <img src="https://img.shields.io/badge/Download%20CV-4B3621?style=for-the-badge&logo=googledrive&logoColor=white" />
   </a>
   &nbsp;&nbsp;
@@ -35,20 +35,23 @@
 
 <h2 align="center" id="project">Featured Projects</h2>
 
-<table align="center">
-  <tr>
-    <td width="50%">
-      <h3>📈 Inventory & Revenue Growth</h3>
-      <p>Analyzed Mexico Toy Sales to achieve <b>10% revenue growth</b>[cite: 36, 104]. Used <b>Python’s Prophet library</b> for advanced forecasting.</p>
-      <a href="PROJECT_LINK"><b>View Technical Documentation →</b></a>
-    </td>
-    <td width="50%">
-      <h3>🎮 Steam Market Expansion</h3>
-      <p>Leveraged engagement data from <b>4.7k titles</b> [cite: 63, 66] to identify a <b>15-20% revenue increase</b> opportunity[cite: 69].</p>
-      <a href="PROJECT_LINK"><b>View Interactive Dashboard →</b></a>
-    </td>
-  </tr>
-</table>
+### 📈 Project 1: Inventory & Revenue Growth
+* **Impact:** Identified strategies to achieve a <mark><b>10% revenue growth</b></mark> target[cite: 36, 104].
+* **Technical:** Used **Python’s Prophet library** for advanced forecasting[cite: 107].
+* **Insight:** Medium-priced electronics (Colorbuds) identified as strongest profit drivers at <mark><b>$834K</b></mark>[cite: 108].
+* [<b>View Project Documentation →</b>](./project-maven-toys/)
+
+### 🎮 Project 2: Strategic Steam Market Expansion
+* **Impact:** Analyzed <mark><b>4,710 games</b></mark> to identify a <mark><b>15-20% revenue increase</b></mark> opportunity[cite: 63, 69].
+* **Technical:** Conducted **Genre Benchmarking** and **Sentiment Index Correlation**[cite: 67, 68].
+* **Insight:** Identified high-retention "mostly negative" games indicating "hate-playing" risks[cite: 68].
+* [<b>View Project Documentation →</b>](./project-steam-analysis/)
+
+### 💳 Project 3: RevoBank Customer Credit Usage
+* **Impact:** Identified factors to increase credit card usage by <mark><b>10% in 6 months</b></mark>[cite: 34].
+* **Technical:** Executed analysis through targeted **Customer Segmentation**[cite: 34].
+* **Insight:** Optimized marketing strategies based on key customer indicators[cite: 36].
+* [<b>View Project Documentation →</b>](./project-revobank-analysis/)
 
 ---
 
@@ -59,14 +62,16 @@
 
 ### 🤝 Soft Skills
 * ✨ **Adaptability:** Thriving in dynamic retail environments[cite: 51].
-* 🔍 **Precision:** Focused on reducing search time by **10%** through organization[cite: 30].
+* 🔍 **Precision:** Focused on reducing search time by <mark><b>10%</b></mark> through organization[cite: 30].
 * 🗣️ **Communication:** Turning complex data into **stakeholder-ready insights**[cite: 15, 54].
 
 ---
 
 <h2 align="center">Certificates</h2>
 <p align="center">
-  <pdf src="assets/Fitriyatus Sholihah-FSDA-2026-03-36982485677-Certificate of Achievement.pdf" width="250px" />
+  <a href="assets/Fitriyatus Sholihah-FSDA-2026-03-36982485677-Certificate of Achievement.pdf">
+    <img src="assets/certificate_screenshot.png" width="350px" alt="Click to view PDF Certificate" />
+  </a>
   <img src="assets/ai_certificate.png" width="350px" />
 </p>
 
