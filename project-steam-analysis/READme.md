@@ -112,5 +112,5 @@ This project focuses on strategic Steam market expansion by leveraging player en
 
 ---
 <p align="center">
-  <a href="../index.html"><b>← Back to Main Portfolio</b></a>
+  <a href="../index.md"><b>← Back to Main Portfolio</b></a>
 </p>
