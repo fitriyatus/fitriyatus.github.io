@@ -78,8 +78,8 @@
 
 <h2 align="center">Certificates</h2>
 <p align="center">
-  <a href="assets/Fitriyatus Sholihah-FSDA-2026-03-36982485677-Certificate of Achievement.pdf">
-    <img src="assets/certificate_screenshot.png" width="350px" alt="Click to view PDF Certificate" />
+  <a>
+    <img src="assets/FSDA_certificate.png" width="350px" />
   </a>
   <img src="assets/ai_certificate.png" width="350px" />
 </p>
