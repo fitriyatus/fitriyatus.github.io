@@ -6,10 +6,6 @@
     <img src="https://img.shields.io/badge/Live%20Dashboard-4B3621?style=for-the-badge&logo=tableau&logoColor=white" />
   </a>
   &nbsp;
-  <a href="steam_code.txt">
-    <img src="https://img.shields.io/badge/View%20Python%20Code-3776AB?style=for-the-badge&logo=python&logoColor=white" />
-  </a>
-  &nbsp;
   <a href="../assets/%5BDataViz_OCT25%5D_fitriyatus_sholihah_Advance%20(1).pdf" target="_blank">
     <img src="https://img.shields.io/badge/View%20Deck%20(PDF)-A68966?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" />
   </a>
