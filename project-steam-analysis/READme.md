@@ -33,68 +33,28 @@ This project focuses on strategic Steam market expansion by leveraging player en
 
 ---
 
-### 1. Steam Game Executive View
 <table>
   <tr>
-    <td width="60%">
-      <img src="../assets/steam_dashboard_main.png" alt="Executive View Dashboard" style="border-radius: 10px; border: 1px solid #A68966;">
+    <td width="60%" valign="top">
+      <img src="../assets/dashboard_steam.png" alt="Executive View Dashboard" style="border-radius: 10px; border: 1px solid #A68966;">
     </td>
     <td>
-      <h4>Key Insights:</h4>
+      <h4>1. Steam Game Executive View</h4>
       <ul>
         <li><b>KPI Overview:</b> Tracks <mark><b>4.71K total games</b></mark> and a 4.10/5.0 average rating.</li>
         <li><b>Engagement:</b> Highlights the massive <b>392.4 average hours</b> of playtime per title.</li>
       </ul>
-    </td>
-  </tr>
-</table>
-
----
-
-### 2. Title Game Action Priority Matrix
-<table>
-  <tr>
-    <td width="60%">
-      <img src="../assets/steam_priority_matrix.png" alt="Action Priority Matrix" style="border-radius: 10px; border: 1px solid #A68966;">
-    </td>
-    <td>
-      <h4>Key Insights:</h4>
+            <h5>2. Title Game Action Priority Matrix</h5>
       <ul>
         <li><b>Strategic Mapping:</b> Scatter plot identifying titles for <b>"Invest & Expand"</b> vs. <b>"Fix Quality."</b></li>
         <li><b>Growth Genres:</b> Pinpoints <b>Medical Sim and Sniper</b> as genres with highest ROI potential.</li>
       </ul>
-    </td>
-  </tr>
-</table>
-
----
-
-### 3. Rating by Playtime (Hate-Playing Analysis)
-<table>
-  <tr>
-    <td width="60%">
-      <img src="../assets/steam_playtime_spike.png" alt="Rating by Playtime Bar Chart" style="border-radius: 10px; border: 1px solid #A68966;">
-    </td>
-    <td>
-      <h4>Key Insights:</h4>
+      <h6>3. Rating by Playtime (Hate-Playing Analysis)</h6>
       <ul>
         <li><b>Sentiment Gap:</b> Reveals high retention (<mark><b>298.8 hours</b></mark>) even in "Mostly Negative" games.</li>
         <li><b>Risk ID:</b> Identifies potential <b>"hate-playing"</b> risks that could skew standard churn metrics.</li>
       </ul>
-    </td>
-  </tr>
-</table>
-
----
-
-### 4. Global User Distribution & Genre Comparison
-<table>
-  <tr>
-    <td width="60%">
-      <img src="../assets/steam_global_map.png" alt="Global User Distribution Map" style="border-radius: 10px; border: 1px solid #A68966;">
-    </td>
-    <td>
-      <h4>Key Insights:</h4>
+      <h7>4. Global User Distribution & Genre Comparison</h7>
       <ul>
         <li><b>Geographic Density:</b> Maps user engagement density to focus localized marketing.</li>
         <li><b>Genre Reach:</b> Compares Top 5 game types by rating vs. total hours to find the <b>"Recommendation Gap."</b></li>
@@ -102,6 +62,7 @@ This project focuses on strategic Steam market expansion by leveraging player en
     </td>
   </tr>
 </table>
+
 
 ---
 
