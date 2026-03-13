@@ -10,7 +10,7 @@
     <img src="https://img.shields.io/badge/View%20Python%20Code-3776AB?style=for-the-badge&logo=python&logoColor=white" />
   </a>
   &nbsp;
-  <a href="../assets/Fitriyatus%20Sholihah-FSDA-2026-03-36982485677-Certificate%20of%20Achievement.pdf" target="_blank">
+  <a href="../assets/FSDA_batch_fitriyatus_sholihah_final_project.pptx (2).pdf" target="_blank">
     <img src="https://img.shields.io/badge/View%20Deck%20(PDF)-A68966?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" />
   </a>
 </p>
@@ -40,69 +40,33 @@ This project analyzes the Mexico Toy Sales dataset to rectify inventory imbalanc
 
 ---
 
-### 1. Executive Summary & Profitability
 <table>
   <tr>
     <td width="60%">
-      <img src="../assets/maven_dashboard.png" alt="Executive Summary Dashboard" style="border-radius: 10px; border: 1px solid #A68966;">
+      <img src="../assets/dashboard_final.png" alt="Executive Summary Dashboard" style="border-radius: 10px; border: 1px solid #A68966;">
     </td>
     <td>
-      <h4>Key Insights:</h4>
+      <h4>1. Executive Summary & Profitability</h4>
+<h5>Key Insights:</h5>
       <ul>
         <li><b>KPI Tracking:</b> Displays the <mark><b>$14M Total Revenue</b></mark> and $4M Total Profit.</li>
         <li><b>Growth Path:</b> Maps current performance against the 10% growth target.</li>
         <li><b>Winning Products:</b> Identifies Colorbuds ($834k) as the primary profit engine.</li>
       </ul>
-    </td>
-  </tr>
-</table>
-
----
-
-### 2. Price Tier & Margin Optimization
-<table>
-  <tr>
-    <td width="60%">
-      <img src="../assets/price_tier_margin.png" alt="Price Tier Margin Comparison" style="border-radius: 10px; border: 1px solid #A68966;">
-    </td>
-    <td>
-      <h4>Key Insights:</h4>
+      <h6>2. Price Tier & Margin Optimization</h6>
+    <h7>Key Insights:</h7>
       <ul>
         <li><b>Margin Analysis:</b> Compares the 15.66%, 33.7%, and 50.64% margins across tiers.</li>
         <li><b>Strategy:</b> Proves the <b>Medium Tier</b> is the "sweet spot" for volume and profit.</li>
       </ul>
-    </td>
-  </tr>
-</table>
-
----
-
-### 3. Forecasting the "September Slump"
-<table>
-  <tr>
-    <td width="60%">
-      <img src="../assets/prophet_forecast.png" alt="Python Prophet Forecast Plot" style="border-radius: 10px; border: 1px solid #A68966;">
-    </td>
-    <td>
-      <h4>Key Insights:</h4>
+ <h8>3. Forecasting the "September Slump"</h8>
+      <h9>Key Insights:</h9>
       <ul>
         <li><b>Predictive Modeling:</b> Built with <b>Python Prophet</b> to see 180 days ahead.</li>
         <li><b>Actionable Warning:</b> Specifically pinpointed a seasonal revenue dip in September.</li>
       </ul>
-    </td>
-  </tr>
-</table>
-
----
-
-### 4. Inventory "Red Zone" & Supply Chains
-<table>
-  <tr>
-    <td width="60%">
-      <img src="../assets/inventory_map.png" alt="Inventory Red Zone Map" style="border-radius: 10px; border: 1px solid #A68966;">
-    </td>
-    <td>
-      <h4>Key Insights:</h4>
+      <h10> 4. Inventory "Red Zone" & Supply Chains</h10>
+       <h11>Key Insights:</h11>
       <ul>
         <li><b>Geospatial Risks:</b> Highlights <b>La Paz and Toluca</b> as critical stockout zones.</li>
         <li><b>Stock Imbalance:</b> Visualizes "Zombie" inventory (104 weeks) vs. stockouts (<5 weeks).</li>
@@ -110,11 +74,6 @@ This project analyzes the Mexico Toy Sales dataset to rectify inventory imbalanc
     </td>
   </tr>
 </table>
-
----
-<p align="center">
-  <a href="../index.html"><b>← Back to Main Portfolio</b></a>
-</p>
 
 ---
 <p align="center">
