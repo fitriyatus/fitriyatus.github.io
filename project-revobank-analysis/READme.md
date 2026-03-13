@@ -33,7 +33,7 @@ This project addresses low credit card utilization at RevoBank, Indonesia. By le
 <table>
   <tr>
     <td width="60%">
-      <img src="../assets/revobank_boxplots.png" alt="Customer Persona Box Plots" style="border-radius: 10px; border: 1px solid #A68966;">
+      <img src="../assets/customer_cluster.png" alt="Customer Persona" style="border-radius: 10px; border: 1px solid #A68966;">
     </td>
     <td>
       <h4>Key Insights:</h4>
@@ -51,7 +51,7 @@ This project addresses low credit card utilization at RevoBank, Indonesia. By le
 <table>
   <tr>
     <td width="60%">
-      <img src="../assets/revobank_elbow_method.png" alt="Elbow Method Chart" style="border-radius: 10px; border: 1px solid #A68966;">
+      <img src="../assets/elbow_revobank.png" alt="Elbow Method Chart" style="border-radius: 10px; border: 1px solid #A68966;">
     </td>
     <td>
       <h4>Key Insights:</h4>
@@ -69,7 +69,7 @@ This project addresses low credit card utilization at RevoBank, Indonesia. By le
 <table>
   <tr>
     <td width="60%">
-      <img src="../assets/revobank_age_spending.png" alt="Age Segment Bar Chart" style="border-radius: 10px; border: 1px solid #A68966;">
+      <img src="../assets/age_spend.png" alt="Age Segment Bar Chart" style="border-radius: 10px; border: 1px solid #A68966;">
     </td>
     <td>
       <h4>Key Insights:</h4>
@@ -87,7 +87,7 @@ This project addresses low credit card utilization at RevoBank, Indonesia. By le
 <table>
   <tr>
     <td width="60%">
-      <img src="../assets/revobank_dti_scatter.png" alt="DTI vs Credit Score" style="border-radius: 10px; border: 1px solid #A68966;">
+      <img src="../assets/risk_credit.png" alt="DTI vs Credit Score" style="border-radius: 10px; border: 1px solid #A68966;">
     </td>
     <td>
       <h4>Key Insights:</h4>
