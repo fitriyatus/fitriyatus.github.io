@@ -1,0 +1,1173 @@
+#IMPORT DATASET
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+#Import dataset csv format from google drive
+sheet_url = 'https://drive.google.com/file/d/1_xFUfSyvA3jgTBELM38KYo-7H2AIEO6y/view' #assign link to a variable
+sheet_url_replace = 'https://drive.google.com/uc?id=' + sheet_url.split('/')[-2] #replace the link
+
+print(sheet_url_replace)
+
+df_user = pd.read_csv(sheet_url_replace) #Import/read the csv file into pandas dataframe
+df_user # Show the user Dataset
+
+df_user.shape # Shows number of rows and columns
+
+df_user.info() # Shows the loan dataset info
+
+#Import dataset csv format from google drive
+sheet_url = 'https://drive.google.com/file/d/1XWbRb5j-qvuaj3rpfhahIE0YojWfYANl/view' #assign link to a variable
+sheet_url_replace = 'https://drive.google.com/uc?id=' + sheet_url.split('/')[-2] #replace the link
+
+print(sheet_url_replace)
+
+df_card = pd.read_csv(sheet_url_replace) #Import/read the csv file into pandas dataframe
+df_card # Show the user Dataset
+
+df_card.shape # Shows number of rows and columns
+
+df_card.info() # Shows the loan dataset info
+
+#CLEANING
+
+df_user1 = df_user.copy()
+df_user1
+
+df_card1 = df_card.copy()
+df_card1
+
+##ID string
+
+df_user1['id'] = df_user1['id'].astype(str) # Change id data type into string
+
+df_user1['id'].dtype # Check the datatype of id after replaced
+
+df_card1['id'] = df_card1['id'].astype(str) # Change id data type into string
+
+df_card1['id'].dtype # Check the datatype of id after replaced
+
+df_card1['client_id'] = df_card1['client_id'].astype(str)
+
+##Change data type
+
+#remove RP
+# Columns to clean
+columns_to_clean = ['per_capita_income', 'yearly_income', 'total_debt']
+
+for column in columns_to_clean:
+    # Remove 'Rp', trim whitespace, and convert to float after cleaning
+    df_user1[column] = df_user1[column].str.replace('Rp', '').str.strip()  # Remove 'Rp'
+    df_user1[column] = df_user1[column].str.replace('.', '', regex=False).astype(float)  # Remove thousands separator
+
+# Verify the changes
+print(df_user1[columns_to_clean].head())  # Display the cleaned values
+
+df_user1.info()
+
+
+# Columns to clean, corrected name for 'amt_fraud_trx_L6M'
+columns_to_clean1 = ['credit_limit', 'amt_nonfraud_trx_L6M', 'amt_fraud_trx_L6M'] # Removed trailing space
+
+for column1 in columns_to_clean1:
+    # Ensure the column is string type, remove 'Rp', trim whitespace, and replace thousands separator
+    df_card1[column1] = df_card1[column1].astype(str).str.replace('Rp', '', regex=False).str.replace('.', '', regex=False)
+    # Convert to float, coercing errors to NaN
+    df_card1[column1] = pd.to_numeric(df_card1[column1], errors='coerce')
+
+# Verify the changes
+print(df_card1[columns_to_clean1].head())  # Display the cleaned values
+print(df_card1.dtypes) # Also show the dtypes to confirm
+
+# Optional Option 2: Keep as float but adjust display settings
+pd.set_option('display.float_format', lambda x: '%.2f' % x)
+
+# Optionally check the result
+print(df_card1['amt_nonfraud_trx_L6M'].head())
+
+columns_to_convert = ['expires', 'acct_open_date']
+for column in columns_to_convert:
+    df_card1[column] = pd.to_datetime(df_card1[column], format='%m/%Y', errors='coerce')  # Adjust format as needed
+
+# Verify the changes
+print(df_card1[['expires', 'acct_open_date']].dtypes)  # Both should be 'datetime64[ns]'
+
+print(df_card1.dtypes)
+
+df_user1['birthdate'] = pd.to_datetime(df_user1['birthdate'], format='%Y-%m-%d')
+
+df_user1.info()
+
+##Check Value
+
+###user
+
+df_user1.columns
+
+# df_users_dc[df_users_dc.columns[1]].value_counts()
+df_user1['id'].value_counts()
+
+df_user1['retirement_age'].value_counts()
+
+df_user1['birthdate'].value_counts()
+
+df_user1['gender'].value_counts()
+
+df_user1['per_capita_income'].value_counts()
+
+# Filter to find rows where per_capita_income is 0
+zero_income_rows = df_user1[df_user1['per_capita_income'] == 0]
+
+# Display the rows with zero per_capita_income
+print(zero_income_rows)
+
+df_user1['yearly_income'].value_counts()
+
+df_user1['total_debt'].value_counts()
+
+df_user1['credit_score'].value_counts()
+
+### card
+
+df_card1.columns
+
+df_card1['id'].value_counts()
+
+df_card1[df_card1['id'].duplicated(keep=False)].sort_values('id')
+
+# Find and count duplicated IDs:
+df_card1['id'].value_counts()[df_card1['id'].value_counts() > 1]
+
+df_card1['client_id'].value_counts()
+
+df_card1['card_brand'].value_counts()
+
+# Further merge variations
+df_card1['card_brand'] = df_card1['card_brand'].replace("Jcb", "JCB")
+
+df_card1['card_brand'] = df_card1['card_brand'].replace("Visa ", "Visa")
+
+df_card1['card_brand'].value_counts()
+
+df_card1['card_number'].value_counts()
+
+df_card1['expires'].value_counts()
+
+df_card1['cvv'].value_counts()
+
+df_card1['acct_open_date'].value_counts()
+
+df_card1['year_pin_last_changed'].value_counts()
+
+df_card1['days_since_last_trx'].value_counts()
+
+df_card1['count_nonfraud_trx_L6M'].value_counts()
+
+df_card1['amt_nonfraud_trx_L6M'].value_counts()
+
+df_card1['count_fraud_trx_L6M'].value_counts()
+
+df_card1['amt_fraud_trx_L6M'].value_counts()
+
+##missing value
+
+df_user1.isnull().sum()
+
+# Exclude the duplicate
+df_card1.drop_duplicates('id',keep = 'first',inplace = True)
+
+# Alternative option:
+# df_users_dc = df_users_dc[~df_users_dc['id'].duplicated()]
+# # df_users_dc[df_users_dc['id']==218833]
+df_card1.info()
+
+df_card1.isnull().sum()
+
+missing data got many null in other column too, so I need to fill it with 0
+
+#df_card1.drop(columns = ['count_fraud_trx_L6M', 'amt_fraud_trx_L6M'], inplace = True) #Drop the column
+
+more than 50% is null
+
+# Fill missing values in transaction-related columns with 0
+columns_to_fill = ['credit_limit','count_nonfraud_trx_L6M', 'amt_nonfraud_trx_L6M', 'count_fraud_trx_L6M', 'amt_fraud_trx_L6M']
+df_card1[columns_to_fill] = df_card1[columns_to_fill].fillna(0)
+
+# Verify that missing values have been filled
+print(df_card1.isnull().sum())
+
+Fill 0 to 5 column to help analysis
+
+print(df_card1['credit_limit'].value_counts())
+
+print(df_card1['credit_limit'].describe())
+
+plt.figure(figsize=(10, 6))
+sns.histplot(df_card1['credit_limit'], kde=True, bins=50)
+plt.title('Distribution of Credit Limit in df_card1')
+plt.xlabel('Credit Limit')
+plt.ylabel('Frequency')
+plt.show()
+
+df_card1.isnull().sum()
+
+df_card1
+
+##filter
+
+def filter_card_data(df):
+    # Define the expiration date as a datetime object
+    date_exp = pd.to_datetime('05-2025', format='%m-%Y')
+
+    # Filter based on the specified conditions
+    filtered_data = df[
+            (df['expires'] > date_exp) &  # Date condition
+            ((df['credit_limit'] > 0) | (df['credit_limit'].notnull()))  # Credit limit condition
+        ]
+    return filtered_data
+
+# Execute the function
+result = filter_card_data(df_card1)
+print(result)
+
+df_card1 = filter_card_data(df_card1)
+
+df_card1
+
+##add column
+
+from datetime import datetime
+
+# Since age is in year, we floor divide by "Y", so // np.timedelta64(1,'Y')
+df_user1['age']  = round(
+    (
+        datetime(year=2025, month=5, day=31) - df_user1['birthdate'] #difference
+    ).dt.days #difference in days
+    / 365.25 #difference in years
+) #difference in years rounded
+
+df_user1
+
+df_user1.loc[df_user1['age'] >= df_user1['retirement_age'], 'retired_flag'] = 1
+# df_user1['retired_flag'] = (df_user1['age'] >= df_user1['retirement_age']).astype(int)
+
+# Check the result
+print(df_user1)
+
+# Calculate DTI using either the yearly_income column
+df_user1['DTI'] = (df_user1['total_debt'] / df_user1['yearly_income'])
+
+# Display the results
+print(df_user1['DTI'])
+
+print(df_user1)
+
+#df_user1.info()
+
+# Fill NaN with 0 (non-retired) and convert to boolean
+df_user1['retired_flag'] = df_user1['retired_flag'].fillna(0).astype(bool)
+
+df_user1['retired_flag'].value_counts()
+
+df_user1['DTI'].value_counts()
+
+# 1. Convert df_user1 column types
+df_user1['age'] = df_user1['age'].astype(int)
+# df_user1['retired_flag'] = df_user1['retired_flag'].astype(bool)
+
+df_user1.info()
+
+#IQR
+
+df_user1['yearly_income'].describe()
+
+sns.boxplot(data = df_user1 , x ="yearly_income")
+
+sns.boxplot(data = df_user1 , x ="DTI")
+
+#Milestone2
+
+##prepare merged dataset
+
+# 2. Merge datasets using client_id = id
+# We use 'left' join to keep all card information
+df_merged = pd.merge(df_card1, df_user1, left_on='client_id', right_on='id')
+
+df_merged.info()
+
+df_merged = df_merged.drop(columns = ['id_y'])
+
+df_merged = df_merged.rename(columns={'id_x': 'id'})
+
+df_merged.info()
+
+agg_df = df_merged.groupby('client_id').agg({
+    'days_since_last_trx': 'min',   # recency
+    'count_nonfraud_trx_L6M': 'sum',
+    'amt_nonfraud_trx_L6M': 'sum',
+    'count_fraud_trx_L6M': 'sum',
+    'amt_fraud_trx_L6M': 'sum',
+    'credit_limit': 'sum',
+    'age': 'first',
+    'retired_flag': 'first',
+    'DTI': 'first',
+    'credit_score': 'first'
+}).reset_index()
+
+df_merged2=df_merged.copy()
+
+# Step 1: Filter for transactions in the last 6 months (182 days)
+filtered_transactions = df_merged[df_merged['days_since_last_trx'] <= 182]
+
+df_merged = filtered_transactions
+
+df_merged['days_since_last_trx'].value_counts()
+
+##Information Descriptive Analysis
+
+# Descriptive Analysis, after treating the outlier
+pd.set_option('display.float_format', lambda x: '%.2f' % x) # Showing number in 2 decimal place format
+pd.options.display.float_format = '{:,.2f}'.format # Formatting with thousands separator
+# pd.set_option('display.float_format', None) # Set the option to default
+
+# Option 1 to filter only numeric variables
+numerical = df_merged.select_dtypes(include = ['number'])
+numerical
+
+# Option 2 to define the numeric variables
+numeric = ['credit_limit',	'amt_nonfraud_trx_L6M',	'amt_fraud_trx_L6M',	'retirement_age',	'per_capita_income',	'yearly_income',	'total_debt',	'credit_score',	'age',	'DTI']
+
+desc_eda = df_merged[numeric].describe()
+desc_eda.loc['kurtosis'] = df_merged[numeric].kurt() #show kurtosis statistic
+desc_eda.loc['skewness'] = df_merged[numeric].skew() #show Skewness statistic
+desc_eda.loc['variance'] = df_merged[numeric].var() #show variance statistic
+# desc_eda.round(1) # Will be override by pd.set_option
+desc_eda
+
+**Demographics:**
+
+The average age of our customer base is 55.98 years , suggesting that most users are in the mid-career to pre-retirement stage. This demographic trend is reflected in their high average credit score of 719 , indicating reliability in managing credit.
+
+**Revenue Insights:**
+
+The average spending over the last six months is 123,909,575 , with a median of 87,933,400 . The mean is approximately 1.5 times higher than the median, indicating high skewness (2.87) in spending behavior where a small number of customers are contributing significantly to total revenue. Notably, 25% of users only spent 43,791,450 , highlighting a wide disparity in customer spending.
+
+**Credit Analysis:**
+
+Credit limits vary widely, ranging from 301,000 to 221,842,000 , suggesting diverse customer needs and risk profiles. This variability indicates that RevoBank tailors credit limits based on individual assessments.
+
+**Credit Score Stability:**
+
+With an average credit score of 719.31 , alongside a low standard deviation of 62.10 , the data reflects a consistent reliability among customers. The low skewness (-0.55) indicates that the distribution of credit scores does not feature many high-risk customers.
+
+**Fraud Analysis:**
+The Kurtosis of 85.16 for fraudulent transactions indicates a significant number of customers (75%) experience no fraud , while a small fraction encounters substantial fraud amounts (up to 26.9M ). This suggests strong security protocols, but also points to the need for vigilance regarding a few high-risk clients.
+
+**Debt-to-Income (DTI) Ratio:**
+The average DTI is 22.36 , significantly under the 36 threshold generally regarded as “safe.” Most customers manage their debts effectively; however, the maximum DTI of 89.11 raises red flags about certain individuals spending nearly 90% of their income on debt repayment, which may jeopardize their future borrowing capacity despite having a relatively good credit score.
+
+**Skewness and Standard Deviation:**
+The positive skewness in spending (2.87) indicates that the majority of customers spend less, while a few high spenders inflate the average. Conversely, the high standard deviation in credit limits (18.5M ) shows that the bank has a diverse clientele with varying financial capabilities, highlighting the need for a tailored approach rather than a standardized credit policy.
+
+## Information Descriptive About String Variables
+
+# Option 1 to filter only object
+categorical = df_merged.select_dtypes(exclude = ['number', 'datetime'])
+
+# or
+categorical2 = df_merged.select_dtypes(include = ['object'])
+
+categorical2.columns.to_list()
+
+objects =['id','client_id', 'card_brand', 'gender']
+df_merged[objects].describe()
+
+**ID and Client ID**:
+
+This means RevoBank is very successful at "Cross-selling." On average, each customer owns about $3.078$ cards ($3,679 \div 1,995 \approx 3.078$). the top client ID is 1741 with a freq of 8. This single person has 9 different cards/accounts!
+
+**Card brand**:
+
+Mastercard appears 1,875 times out of 3,679. That is roughly 48.7% of total cards. Mastercard appears 8 times in the transactions, indicating moderate usage.
+
+**Gender**:
+
+With a frequency of 1,887, women represent about 51.29% of cardholders.
+
+## Descriptive Information About Date Type Variable
+
+# Option 1 to filter only datetime
+datetime_var = df_merged.select_dtypes(include = ['datetime'])
+datetime_var.describe()
+
+**acct_open_date**:
+
+The earliest account (min) was opened in 1996, and the average (mean) was opened in 2013.
+In banking, "Tenure" (how long a customer stays) is gold. The median (50%) is 2013 means half of your customers have been with the bank for over 10 years. These are stable customers who are unlikely to switch banks easily.
+
+**Birthdate**:
+
+The median (50%) birthdate is 1971. The youngest person (max) was born in 2002.
+
+**Expires**:
+
+The minimum expiry date is June 2025, and the 25th percentile is January 2027. 25% of your cards (about 919 cards) will expire between now and the start of 2027. Most cards expire around July 2028 (middle value)
+
+##Number of customers
+
+# How many users do we have in the data?
+customers_count = df_merged['client_id'].nunique()
+
+print(f"{customers_count:,}") # Print the output with thousands separator
+
+RevoBank has 1,195 client accounts
+
+##MDR profit
+
+MDR (Merchant Discount Rate) is a fee that the bank charges a merchant (like a grocery store or a cafe) for processing a credit/debit card payment. Every time a customer swipes their card, the bank takes a small cut (usually between $1.5\%$ to $3\%$). This is one of the main ways banks make money!Formula & Logic: RevoBank standard MDR fee of $1.5%$.
+
+$Net Profit = (Total Sales \times MDR Rate) - Total Fraud Amount$
+
+# Assume all transactions in 'amt_nonfraud_trx_L6M' represent total sales amounts
+total_sales = df_merged['amt_nonfraud_trx_L6M'].sum()
+
+# Calculate MDR profit
+profit_margin = 0.015  # 1.5%
+total_profit = total_sales * profit_margin
+
+# Calculate total fraud amount (from 'amt_fraud_trx_L6M')
+total_fraud = df_merged['amt_fraud_trx_L6M'].sum()
+
+# Calculate net profit
+net_profit = total_profit - total_fraud
+
+print(f"Net Profit: Rp{net_profit:,.2f}")
+
+##Fraud rate
+
+In the banking industry, a fraud rate is considered safe if it is extremely low (typically below $0.1\%$). If the rate is high (e.g., $1\%$ or more), it means the bank’s security is weak, and they are losing a lot of money, which could damage their reputation.
+
+total_fraud = df_merged['amt_fraud_trx_L6M'].sum()
+total_nonfraud = df_merged['amt_nonfraud_trx_L6M'].sum()
+fraud_rate = (total_fraud / (total_fraud + total_nonfraud)) * 100
+
+# Pie Chart
+labels = ['Non-Fraud', 'Fraud']
+sizes = [total_nonfraud, total_fraud]
+plt.pie(sizes, labels=labels, autopct='%.2f%%', startangle=140, colors=['skyblue', 'red'])
+plt.title('Proportion of Fraud vs Non-Fraud Transaction Amount')
+plt.show()
+
+The data indicates that only 0.22% of clients have experienced fraud, demonstrating a robust security environment at RevoBank.
+
+**Insight :**
+* Fraud Metrics: Among our client base, an impressive 99.78% of clients are free from any fraud incidents, while only 0.22% have experienced fraud on their accounts.
+* TThis low fraud rate suggests that RevoBank has effective fraud detection mechanisms and risk management protocols in place, fostering customer trust and confidence in the bank's commitment to protecting their financial interests.
+
+##Transaction Behaviour
+
+This helps us understand which card brand (e.g., Visa, Mastercard) is used more frequently and for larger purchases. If one brand has much higher usage, the bank might want to partner more closely with that provider for better promotions.
+
+# Grouping by card brand
+brand_behavior = df_merged.groupby('card_brand').agg({
+    'count_nonfraud_trx_L6M': 'mean',
+    'amt_nonfraud_trx_L6M': 'mean'
+}).rename(columns={'count_nonfraud_trx_L6M': 'Avg Trx Count', 'amt_nonfraud_trx_L6M': 'Avg Trx Amount'})
+
+# Bar Chart
+brand_behavior['Avg Trx Amount'].plot(kind='bar', color='teal')
+plt.title('Average Transaction Amount per Card Brand')
+plt.ylabel('Amount ($)')
+plt.show()
+
+Card Usage Insights:
+
+It reveals that while a significant number of customers utilize Mastercard, those customers tend to engage more frequently with their Amex cards on average.
+
+
+**Interpretation:**
+
+Customer Behavior: This suggests that although Mastercard has a broader user base, Amex users are likely experiencing higher satisfaction or benefits that encourage frequent usage.
+
+# card_transaction_frequency_per_client_brand = df_merged1.groupby(['client_id', 'card_brand']).agg(
+#     total_nonfraud_transactions=('count_nonfraud_trx_L6M', 'sum'),
+#     total_fraud_transactions=('count_fraud_trx_L6M', 'sum')
+# ).reset_index()
+# print(card_transaction_frequency_per_client_brand.head())
+
+##DTI ratio
+
+Formula:
+
+$DTI = \frac{Total Debt}{Yearly Income} x 100$
+
+Are retired users riskier? Usually, no. While retired users might have lower income, they often have lower debt (mortgages paid off, etc.). However, if a retired user has a high DTI, they are riskier because they have a fixed income and less flexibility to "work more" to pay off unexpected debt.
+
+df_merged['DTI_ratio'] = df_merged['total_debt'] / df_merged['yearly_income']*100
+
+df_merged
+
+df_merged2['retired_flag'].value_counts()
+
+# Step 1: Group by 'retired_flag' and aggregate statistics for 'DTI'
+dti_stats = df_merged.groupby('retired_flag')['DTI_ratio'].agg(['mean', 'median', 'std', 'min', 'max']).reset_index()
+
+# Step 2: Display the results
+print(dti_stats)
+
+Mean & Median:
+
+Non-Retired (False): The Mean (28.16) and Median (28.56) are almost identical. Most people in this group are consistently carrying a significant debt load (around 28% of their income).
+
+Retired (True): The Mean (5.80) is more than double the Median (2.58). This indicates Skewness. Most retired people have almost zero debt (2.58), but a small handful of retirees with higher debt (the outliers up to 42.41) are pulling the average up.
+
+Std: The Std for the working group is 15.90, while for retirees, it is only 6.67. Retirees are much more predictable. In banking, "predictable" means "safe."
+The working group is more volatile, meaning the bank has to be more careful and perform deeper checks on each individual.
+
+Maximum:
+Non-Retired (False): The Max is 89.11. This is a "Red Flag." Nearly 90% of this person's income is tied up in debt. In banking business terms, this customer is "Over-leveraged." If interest rates rise even a little bit, this person might not be able to pay the bank back.
+
+Retired (True): The Max is 42.41. Even the "riskiest" retired person in dataset is still relatively safe. Most banks use 36% to 43% as the cut-off point for mortgage approvals. This means "worst" retired customer is roughly equal to an "average" borrower in the general market.
+
+# Boxplot
+sns.boxplot(x='retired_flag', y='DTI_ratio', data=df_merged)
+plt.title('Debt-to-Income (DTI) Ratio: Retired vs Non-Retired')
+plt.show()
+
+-Non-Retired Clients (False):
+
+The median DTI ratio is approximately 28% , indicating that they carry a significant proportion of debt relative to their income. This is common among working individuals with active car loans or mortgages. However, it presents a higher credit risk compared to retirees.
+
+The interquartile range (IQR) indicates considerable variability in DTI ratios within this group, with some clients showing particularly high ratios, which may point to potential financial stress.
+
+-Retired Clients (True):
+
+The median DTI for retired clients is very low, suggesting that most of these individuals have successfully paid off major life debts (such as mortgages) and are primarily relying on fixed income sources, leading to minimal debt obligations. This reflects a more stable financial status in retirement.
+
+The IQR for retirees is narrow, indicating less variability and suggesting that their income is likely derived from consistent sources such as pensions or savings.
+
+-"Danger Zone" Outliers:
+
+The scatter points above the "False" column indicate that some working-age clients have a DTI exceeding 80% . This implies that for every $1,000 they earn, $800 goes directly to servicing debt. Such high ratios can put these individuals in precarious positions, where a single emergency, like job loss, might lead to immediate difficulties in meeting payment obligations to the bank.
+
+# plt.figure(figsize=(8, 6))
+# sns.boxplot(y=df_merged1['DTI'])
+# plt.axhline(y=0.4, color='red', linestyle='--', label='40% DTI Threshold (Danger Zone)')
+# plt.title('Distribution of DTI with 40% Danger Threshold')
+# plt.ylabel('Debt-to-Income (DTI) Ratio')
+# plt.legend()
+# plt.show()
+
+##DTI by credit score
+
+Ideally, DTI should align with Credit Score (High Score = Low DTI). If someone has a high DTI and high transaction volume, they are very risky because they are spending heavily while already being deep in debt—a recipe for default!
+
+df_merged['credit_score'].value_counts()
+
+df_merged.info()
+
+df_merged1 = df_merged.drop(columns=['per_capita_income', 'cvv', 'acct_open_date', 'card_number'])
+
+df_merged1.info()
+
+# Categorizing Credit Scores
+bins = [300, 579, 669, 739, 799, 850]  # Define intervals for credit scores
+labels = ['Poor', 'Fair', 'Good', 'Very Good', 'Exceptional']  # Define categories
+df_merged1['score_category'] = pd.cut(df_merged1['credit_score'], bins=bins, labels=labels)
+
+# Grouping the data by score category to calculate averages
+score_analysis = df_merged1.groupby('score_category', observed=False).agg({
+# score_analysis = df_merged1.groupby('score_category').agg({
+    'DTI': 'mean',
+    'count_nonfraud_trx_L6M': 'mean',
+    'amt_nonfraud_trx_L6M': 'mean'
+}).reset_index()
+
+print(score_analysis)
+
+1. "Poor" Category (The High-Risk Spenders)
+Users with Poor credit scores are actually the biggest spenders (187M total amount) and the most frequent users (250 transactions). Because their score is already "Poor," the bank is at a very high risk of not getting this 187M back.
+
+2. Fair Category (Struggle Spenders)
+The Fair category has the highest DTI (0.29). They have the highest debt to income. DTI went up (from 0.22 in Poor to 0.29 in Fair) but their spending dropped (from 187M to 145M). This suggests potential financial stress.
+
+3. Good Category (Stable)
+As credit scores improve, transaction counts decline (with the "Good" categories showing lower transaction amounts and counts).
+
+4. The Very Good & Exceptional (Safe)
+The Observation: These groups have the lowest DTI (0.21) and the most stable, conservative spending (around 114M–115M).
+
+# Make Chart
+fig = plt.figure(figsize =(15, 7))
+
+# Use the score_analysis DataFrame for plotting
+# Sort the categories for better visualization, assuming 'Exceptional' is best and 'Poor' is worst
+score_analysis_sorted = score_analysis.sort_values('score_category', ascending=False)
+
+x = score_analysis_sorted['score_category']
+y = score_analysis_sorted['amt_nonfraud_trx_L6M']
+
+# Create the bar chart
+plt.bar(x, y, color=['red', 'orange', 'yellowgreen', 'lightgreen', 'darkgreen'])
+
+# Add the data labels on top of the bars
+for index, value in enumerate(y):
+    plt.text(index, value, f'{value:,.0f}', ha='center', va='bottom', fontsize=10)
+
+# Add chart title
+plt.title('Average Non-Fraud Transaction Amount by Credit Score Category', fontsize=16, fontweight='bold', y=1.05)
+
+# Add chart subtitle
+plt.suptitle('RevoBank Credit Score Analysis', fontsize=12, y=0.97)
+
+plt.xlabel('Credit Score Category', fontsize=12)
+plt.ylabel('Average Non-Fraud Transaction Amount', fontsize=12)
+plt.xticks(rotation=45, ha='right') # Rotate x-axis labels for better readability
+plt.tight_layout()
+plt.show()
+
+###Calculating Breakdown
+
+# The 'Formula' for Transaction Behavior Breakdown
+behavior_breakdown = df_merged1.groupby('score_category').agg({
+    'count_nonfraud_trx_L6M': ['mean', 'sum'], # Frequency: How often do they swipe?
+    'amt_nonfraud_trx_L6M': ['mean', 'sum']    # Volume: How much do they spend in total?
+}).reset_index()
+
+print(behavior_breakdown)
+
+display(behavior_breakdown)
+
+Even though Poor category frequenly using their card (avg), in total (sum) Good Category is using much more than other category, and because they use more, the total amount they spend is biggest too.
+
+###More Analysis on Scorer
+
+####By year last changed
+
+df_merged1.groupby('score_category')['year_pin_last_changed'].agg(['mean', 'min']).sort_values('mean')
+
+The data suggests that clients in the "Poor" and "Fair" categories may be stuck or facing persistent issues with their credit scores, which could be an indicator of financial strain or ineffective credit management.
+The bank may want to consider implementing targeted financial education or counseling for clients in these lower score categories to assist them in improving their credit scores and overall financial health.
+
+####By Age and Yearly Income
+
+df_merged1.groupby('score_category', observed=False)[['age','yearly_income']].agg(['mean','median'])
+
+Poor : Average age is 60.13 , indicating that many clients in this category are nearing retirement age. The mean yearly income is 72,459,744.67 with a median of 57,606,000.00 , which suggests that while these clients have a significant income, their financial management could be lacking, reflected in their poor credit scores.
+
+Fair : Average age is 55.61 ; clients are generally still in their working years but may be facing some financial challenges. Average and median incomes are lower than those in the "Poor" category, which may indicate that clients with fair scores are struggling more significantly with debt relative to their income.
+
+Good, Very Good, and Exceptional : Ages range from 55.75 to 56.86 , suggesting that these groups have relatively stable profiles as they transition into retirement. These categories display a slight decline in income from "Good" ($70,438,180.85) to "Exceptional" ($65,164,551.81), indicating that higher credit scores do not necessarily correlate with higher income but rather may reflect better financial management and spending habits.
+
+####By Days Last Transaction
+
+df_merged1.groupby('score_category')['days_since_last_trx'].agg(['mean','median'])
+
+Even though Poor and Exceptional Median Scoring is the same, but Poor is more frequently using card than other scorer
+
+####By Card Brand
+
+pd.crosstab(df_merged1['score_category'], df_merged1['card_brand'], normalize='index')*100
+
+Every Scorer more frequently using Mastercard and Visa, should be because it can be used globaly
+
+####Multicard user
+
+df_cards_per_client = df_merged1.groupby(['client_id','score_category']).size().reset_index(name='card_count')
+df_cards_per_client.groupby('score_category')['card_count'].mean()
+
+The low card count in the "Poor" and "Exceptional" categories could indicate different issues. For "Poor," it signals limited access to credit, while for "Exceptional," it may suggest a preference for fewer cards or reliance on alternative payment methods.
+
+##Age vs Credit Limit
+
+Strategy: To improve profit, banks look for the "Sweet Spot." Giving higher credit limits to younger users might lead to more "interest income" (if they carry a balance), but it's risky. Older users are stable but might spend less.
+
+# # Group by Age and Average the Credit Limit
+# # We use a rolling average or trim to remove volatility in older ages
+# age_limit = df_merged1.groupby('age')['credit_limit'].mean().reset_index()
+
+#Trim age
+df_age = df_merged1[(df_merged1['age'] >= 21) & (df_merged1['age'] <= 70)]
+
+age_limit = df_age.groupby('age')['credit_limit'].mean().reset_index()
+
+# Visualization
+plt.plot(age_limit['age'], age_limit['credit_limit'])
+plt.title('Relationship Between User Age and Credit Limit')
+plt.xlabel('Age')
+plt.ylabel('Average Credit Limit')
+plt.show()
+
+###More Analysis on Age
+
+####By Age group
+
+# Segmenting by Age Group
+bins = [20, 30, 40, 50, 60, 70]
+group_labels = ['20-29', '30-39', '40-49', '50-59', '60-69']
+df_merged1['age_group'] = pd.cut(df_merged1['age'], bins=bins, labels=group_labels)
+
+# Calculating Average Credit Limit per Age Group
+average_credit_limit = df_merged1.groupby('age_group')['credit_limit'].mean().reset_index()
+print(average_credit_limit)
+
+# Define the bin edges and the names for those groups
+# Note: 20-30 means >20 and <=30
+age_bins = [20, 30, 45, 60, 70]
+age_labels = ['Early Career', 'Family & Establishment', 'Peak Income', 'Pre-Retirement']
+
+# Create the new column
+df_merged1['age_segment'] = pd.cut(df_merged1['age'], bins=age_bins, labels=age_labels)
+
+# Check the results
+age_analysis = df_merged1.groupby('age_segment').agg({
+    'credit_limit': 'mean',
+    'amt_nonfraud_trx_L6M': 'sum',
+    'DTI_ratio': 'mean'
+}).reset_index()
+
+print(age_analysis)
+
+df_merged1['age_segment'].value_counts()
+
+unique_clients_per_age_segment = df_merged1.groupby('age_segment')['client_id'].nunique()
+print(unique_clients_per_age_segment)
+
+####By Correlation
+
+# Calculate Correlation Matrix
+correlation_matrix = df_merged1[['age', 'credit_limit', 'yearly_income', 'DTI']].corr()
+print(correlation_matrix)
+
+plt.scatter(df_merged1['yearly_income'], df_merged1['credit_limit'])
+plt.title('Income vs Credit Limit')
+plt.xlabel('Income')
+plt.ylabel('Credit Limit')
+plt.show()
+
+Positive Correlation :
+The general trend suggests a positive correlation between income and credit limit. As income increases, the credit limit tends to increase as well. This alignment indicates that clients with higher incomes are often deemed lower risk by lenders and therefore are offered higher credit limits.
+
+Outliers :
+A few points at the upper right of the chart reflect clients with very high incomes (over 3 million) and correspondingly high credit limits (up to 2 million). These could be potential "high rollers" who may have significant financial responsibility and credit history, making them attractive to banks for lending.
+
+#calculated fraud <gak masuk>
+
+
+
+#df_card2 = df_card.copy()
+#df_card2
+
+#df_card2['id'] = df_card2['id'].astype(str)
+
+#df_card2['client_id'] = df_card2['client_id'].astype(str)
+
+# Ensure the column is string type, remove 'Rp', trim whitespace, and replace thousands separator
+#df_card2['amt_fraud_trx_L6M'] = df_card2['amt_fraud_trx_L6M'].astype(str).str.replace('Rp', '', regex=False).str.replace('.', '', regex=False)
+# Convert to float, coercing errors to NaN
+#df_card2['amt_fraud_trx_L6M'] = pd.to_numeric(df_card1[column1], errors='coerce')
+
+# Verify the changes
+#print(df_card2['amt_fraud_trx_L6M'].head())  # Display the cleaned values
+#print(df_card2.dtypes) # Also show the dtypes to confirm
+
+# # Calculate transaction amount (20% of yearly_income) assumption
+# transaction_percentage = 0.2
+# df_user1['transaction_amount'] = df_user1['yearly_income'] * transaction_percentage
+
+# # Join df_user1 with df_card1
+# # df_cleaned will have 'id_x' (from df_user1.id) and 'id_y' (from df_card1.id)
+# df_cleaned = df_user1.merge(df_card1, how='inner', left_on='id', right_on='client_id')
+
+# # Prepare the fraud data from df_card, ensuring 'id' column is of object type
+# fraud_data_from_card = df_card[['id', 'amt_fraud_trx_L6M']].copy()
+# fraud_data_from_card['id'] = fraud_data_from_card['id'].astype(str)
+
+# # Clean 'amt_fraud_trx_L6M' column in fraud_data_from_card by removing 'Rp' and '.' and converting to numeric
+# fraud_data_from_card['amt_fraud_trx_L6M'] = (
+#     fraud_data_from_card['amt_fraud_trx_L6M'].astype(str)
+#     .str.replace('Rp', '', regex=False)
+#     .str.replace('.', '', regex=False)
+# )
+# fraud_data_from_card['amt_fraud_trx_L6M'] = pd.to_numeric(fraud_data_from_card['amt_fraud_trx_L6M'], errors='coerce')
+
+# # Rename 'id' in fraud_data_from_card to avoid potential conflicts and ensure explicit handling
+# fraud_data_from_card.rename(columns={'id': 'fraud_card_id'}, inplace=True)
+
+# # Join with fraud data:
+# df_final = df_cleaned.merge(fraud_data_from_card,
+#                             left_on='id_y',
+#                             right_on='fraud_card_id',
+#                             how='left') # Use 'left' to keep all records from df_cleaned
+
+# # Drop the redundant 'fraud_card_id' column that was used for merging
+# df_final.drop(columns=['fraud_card_id'], inplace=True)
+
+# # Calculate total fraud amount
+# total_fraud = df_final['amt_fraud_trx_L6M'].sum()
+
+# # Calculate profit margin (1.5%)
+# profit_margin = 0.015
+# df_final['profit'] = df_final['transaction_amount'] * profit_margin
+
+# # Calculate net profit by subtracting fraud amounts from profit
+# df_final['net_profit'] = df_final['profit'] - df_final['amt_fraud_trx_L6M'].fillna(0)
+
+# # Display results. Assuming 'id_x' is the user's ID you want to display.
+# print(df_final[['id_x', 'transaction_amount', 'amt_fraud_trx_L6M', 'profit', 'net_profit']].head())
+# print(f"Total Fraud Amount: {total_fraud}")
+
+##chart
+
+# import matplotlib.pyplot as plt
+
+# # Visualization of profit and net profit
+# plt.figure(figsize=(10, 6))
+# plt.bar(df_final['id_x'], df_final['profit'], color='b', label='Profit', alpha=0.6)
+# plt.bar(df_final['id_x'], df_final['net_profit'], color='g', label='Net Profit', alpha=0.6)
+
+# # Adding Titles and Labels
+# plt.title('Profit vs Net Profit by User ID')
+# plt.xlabel('User ID')
+# plt.ylabel('Amount')
+# plt.xticks(df_final['id_x'], rotation=90)  # Sets the x-tick labels to user ids and rotates for readability
+# plt.legend()
+# plt.tight_layout() # Adjust layout to prevent labels from overlapping
+
+# # Show the plot
+# plt.show()
+
+#Millestone3
+
+##K-Means
+
+# Import libraries from scipy.stats for statistical tests
+from scipy.stats import shapiro, skew
+
+# Import libraries from sklearn.preprocessing for data scaling
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
+
+# Import libraries from sklearn.cluster for clustering algorithms
+from sklearn import cluster
+from sklearn.cluster import KMeans
+
+# Import libraries from sklearn.metrics for evaluating clustering performance
+from sklearn.metrics import silhouette_samples, silhouette_score
+
+# Import matplotlib.cm for colormaps used in visualizations
+import matplotlib.cm as cm
+
+from yellowbrick.cluster import SilhouetteVisualizer # Untuk melakukan analisis siluet untuk k-means clustering
+
+features = ['amt_nonfraud_trx_L6M', 'count_nonfraud_trx_L6M', 'DTI_ratio', 'credit_limit', 'age']
+X = df_merged1[features]
+
+*Young (Age) + High Debt (DTI) + High Frequency (Count) + Low Spend (Amount)*
+
+In banking, we call this group "The Credit Dependent Youth".
+
+- The Revenue Lens (amt_nonfraud_trx_L6M) : Monetary Value.
+- The Loyalty Lens (count_nonfraud_trx_L6M) : Engagement Frequency.
+- The Risk Lens (DTI_ratio) : Safety Check.
+- The Capacity Lens (credit_limit) : Potential vs. Reality.
+- The Context Lens (age) : Life Stage.
+
+# sns.pairplot(X)
+
+# X.describe()
+
+# X.head()
+
+##Scalling
+
+```
+StandardScaler: If Shapiro-Wilk test yields a p-value greater than 0.05 and skewness is between -0.5 and 0.5.
+MinMaxScaler: If Shapiro-Wilk test yields a p-value less than 0.05 and skewness is between -1 and -0.5 or between 0.5 and 1.
+RobustScaler: If Shapiro-Wilk test yields a p-value less than 0.05 and skewness is greater than 1 or less than -1.
+```
+
+# def determine_scaler(data, column_name):
+#     # Perform Shapiro-Wilk test for normality and calculate skewness
+#     stat, p_value = shapiro(data[column_name])
+#     skewness = skew(data[column_name])
+
+#     # Print results for debugging
+#     print(f"{column_name} - Shapiro-Wilk Test: Statistic={stat}, p-value={p_value}")
+#     print(f"{column_name} - Skewness: {skewness}")
+
+#     # Determine which scaler to use
+#     if p_value > 0.05 and -0.5 <= skewness <= 0.5:
+#         scaler = "StandardScaler"
+#     elif p_value < 0.05 and (-1 <= skewness < -0.5 or 0.5 < skewness <= 1):
+#         scaler = "MinMaxScaler"
+#     elif p_value < 0.05 and (skewness < -1 or skewness > 1):
+#         scaler = "RobustScaler"
+#     else:
+#         scaler = "Not determined"
+
+#     return scaler
+
+# # Example usage with the dataframe 'df_segmentation'
+# amt_nonfraud_scaler = determine_scaler(X, 'amt_nonfraud_trx_L6M')
+# count_nonfraud_scaler = determine_scaler(X, 'count_nonfraud_trx_L6M')
+# DTI_ratio_scaler = determine_scaler(X, 'DTI_ratio')
+# credit_limit_scaler = determine_scaler(X, 'credit_limit')
+# age_scaler = determine_scaler(X, 'age')
+
+# print(f"Recommended Scaler for amt_nonfraud: {amt_nonfraud_scaler}")
+# print(f"Recommended Scaler for count_nonfraud: {count_nonfraud_scaler}")
+# print(f"Recommended Scaler for DTI_ratio: {DTI_ratio_scaler}")
+# print(f"Recommended Scaler for credit_limit: {credit_limit_scaler}")
+# print(f"Recommended Scaler for age: {age_scaler}")
+
+###Robust
+
+robust_scaler = RobustScaler()
+df_robust = pd.DataFrame(robust_scaler.fit_transform(X), columns=X.columns)
+df_robust
+
+sns.pairplot(df_robust)
+
+# df_robust.describe()
+
+###Power Transform
+
+# from sklearn.preprocessing import PowerTransformer
+
+# # Do like MinMaxScaler. We do it using PowerTransformer
+# ptr = PowerTransformer()
+# # The code below is to create the dataframe from the converted data
+# # We do it since the result of the scaler is still in array. Also, don't forget to give columns.
+# df_pt = pd.DataFrame(ptr.fit_transform(X), columns=X.columns)
+# df_pt.head()
+
+# # See the descriptive statistics of the dataset
+# df_pt.describe()
+
+# # Apply sampling in pairplot, do it in 10% of the data. Can you guess the syntax?
+# sns.pairplot(df_pt)
+
+# sns.pairplot(df_pt.sample(frac=0.2, random_state=0))
+
+##K-means Initial Approach
+
+# Data final yang akan dicluster
+# df_robust.head()
+
+# Initialize KMeans for 3 clusters and random_state=42 (See Appendix about Random State)
+cluster_model = KMeans(n_clusters=3, random_state=42, n_init='auto')
+cluster_model
+
+# Call the model variable, and use .fit() function and use "df_robust" as input
+cluster_model.fit(df_robust)
+
+# Untuk melihat Inertia dari model kita, panggil modelnya lalu gunakan ".inertia_"
+cluster_model.inertia_
+
+# Check up cluster label created by the KMeans, panggil modelnya lalu pakai ".labels_"
+cluster_model.labels_
+
+# # Remember our original dataframe is called "df", it is not sorted or removed row
+# df_result = X.copy()
+# df_result['cluster'] = cluster_model.labels_
+# df_result
+
+# # Coba kita lihat banyak orang tiap cluster
+# df_result['cluster'].value_counts()
+
+# # Check untuk salah satu cluster terbentuk
+# df_result[df_result['cluster'] == 2]
+
+# # Let's re-look into data after clustering
+# # Karena kita sudah punya kategori di "cluster", kita bisa taruh di "hue" untuk melihat di warna berbeda
+# sns.pairplot(df_result, hue='cluster')
+
+###Number of Cluster
+
+####Elbow
+
+# We need to train model for each "K". You guessed it, we use "FOR" iteration
+
+# Create empty list to store the inertia value for each K later
+inertia = []
+
+# Why not start from 1? Karena tidak perlu membentuk dan mengukur 1 cluster saja
+K_range = range(1,11)
+
+for K in K_range:
+  # Create the model
+  kmeanModel = KMeans(n_clusters=K, random_state=42, n_init='auto')
+  # Train them using "df_robust" data (our final data scaled by standard scaler)
+  kmeanModel.fit(df_robust)
+  # Get the inertia value and put it in our empty list "inertia"
+  inertia.append(kmeanModel.inertia_)
+
+# Print output
+inertia
+
+# Define canvas
+plt.figure(figsize=(13,4))
+
+# Let's plot the lineplot using matplotlib
+# x-axis -> K_range, y-axis -> inertia
+# "b*-" in the third parameter to do styling (b: blue, *: star mark in each point, -: connect by line)
+# Ref: https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html (bagian marker)
+plt.plot(K_range, inertia, 'b*-')
+
+plt.xlabel('K (Number of Clusters)')
+plt.ylabel('Inertia')
+plt.title('The Elbow Method showing the optimal K');
+
+####Silhouet
+
+# Kita akan show tiap visualisasi lewat subplot dengan 2 kolom dan N baris
+# N menyesuaikan berapa banyak range K yang kita pilih.
+# Misal K-nya 11 biji, kita bikin subplots 6x2
+# Kalau K-nya 12, maka bikin subplots tetep 6x2. (Rumusnya banyak K dibagi 2, lalu dibulatkan ke atas)
+
+# Lakukan hal yang sama untuk setiap K_range 2-10
+K_range = range(2,11)
+
+# Hitung banyak K yang akan diplot
+banyak_K = len(K_range)
+# Dibagi 2 dan dibulatkan ke atas pakai np.ceil() -- (jangan lupa ubah ke int)
+n_baris = int(np.ceil(banyak_K/2))
+
+# Define canvasnya
+fig, ax = plt.subplots(n_baris, 2, figsize=(15,30))
+
+# Karena kita akan show masing-masing plot di ax bersesuaian di subplot, kita harus tau indexnya
+# Kita bisa pakai function enumerate() untuk ambil index dan elemen dari sequence tiap iterasi (see Appendix)
+for index, K in enumerate(K_range):
+  kmeanModel = KMeans(n_clusters=K, random_state=42, n_init='auto')
+
+  # Untuk memasukkan tiap chart ke indexnya di subplot, kita mending .flatten()-kan dulu ax-nya
+  # Sehingga indexnya akan berupa bilangan terurut (liat appendix)
+  sil = SilhouetteVisualizer(kmeanModel, is_fitted=False, ax=ax.flatten()[index])
+  sil.fit(df_robust)
+  sil.finalize()
+  print(f"For k={K}, the average silhouette score is {sil.silhouette_score_}")
+
+###Re-Run Cluster
+
+# Rerun using K=3
+cluster_model = KMeans(n_clusters=3, random_state=42, n_init='auto')
+cluster_model.fit(df_robust)
+
+# Copy the original dataframe to "df_result" and put the cluster label there
+df_result = df_merged1.copy()
+df_result['cluster'] = cluster_model.labels_
+df_result
+
+# Let's see the clusters created
+sns.pairplot(df_result, hue='cluster')
+
+# Bisa juga melakukan boxplot
+
+# Ambil banyak kolom dari data kita
+n_baris = len(X.columns)
+
+# Buat canvas subplot dengan 1 kolom dan N baris sebanyak kolom numerik
+fig, axes = plt.subplots(n_baris, 1, figsize=(10,8))
+
+for i, nama_kol in enumerate(X.columns):
+  # Show boxplot bisa pakai library Seaborn, pilih datanya, x-axis, y-axis, axes, dan showmeans kalo mau show meannya
+  sns.boxplot(df_result, x='cluster', y=nama_kol, ax=axes.flatten()[i], showmeans=True, hue='cluster', legend=False, palette='viridis')
+
+plt.tight_layout()
+plt.show()
+
+df_result.groupby('cluster')[['amt_nonfraud_trx_L6M', 'count_nonfraud_trx_L6M', 'DTI_ratio', 'credit_limit', 'age']].agg(['count','mean','min','max','median']).T
+
+Interpretasi:
+
+
+# 1. Group by cluster and get the mean of your features
+cluster_summary = df_result.groupby('cluster')[features].mean()
+
+# 2. Normalize the data (Min-Max Scaling to 0-1 range)
+# This makes every feature comparable for the spider chart
+cluster_norm = (cluster_summary - cluster_summary.min()) / (cluster_summary.max() - cluster_summary.min())
+
+# 3. View the results
+print(cluster_norm)
+
+# 4. Extract these lists for your spider chart code
+# Example for Cluster 1 (Power Users)
+cluster1_real_values = cluster_norm.loc[1].tolist()
+
+# 1. Define Categories and Data (Using your 3 Cluster Medians)
+categories = ['amt_nonfraud_trx_L6M', 'count_nonfraud_trx_L6M', 'DTI_ratio', 'credit_limit', 'age']
+N = len(categories)
+
+# Simulated Normalized values (0 to 1) based on your provided result
+cluster0 = [0.0, 0.0, 0.46, 0.0, 0.86] # Mass Market
+cluster1 = [1.0, 1.0, 1.0, 0.23, 0.0] # Power Users (High Spend/Freq/Risk)
+cluster2 = [0.10, 0.07, 0.0, 1.0, 1.0] # Affluent Sleepers (High Limit/Low Risk)
+
+# 2. Setup the Radar Plot math
+angles = [n / float(N) * 2 * np.pi for n in range(N)]
+angles += angles[:1] # Close the circle
+
+fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
+
+# Helper function to plot each cluster
+def plot_radar(values, label, color):
+    values += values[:1]
+    ax.plot(angles, values, color=color, linewidth=2, label=label)
+    ax.fill(angles, values, color=color, alpha=0.25)
+
+# 3. Draw the clusters
+plot_radar(cluster0, 'Cluster 0: Mass Market', 'blue')
+plot_radar(cluster1, 'Cluster 1: Power Users', 'red')
+plot_radar(cluster2, 'Cluster 2: Affluent Sleepers', 'green')
+
+# 4. Final Touches
+ax.set_theta_offset(np.pi / 2)
+ax.set_theta_direction(-1)
+plt.xticks(angles[:-1], categories)
+plt.yticks([0.25, 0.5, 0.75], ["Low", "Med", "High"], color="grey", size=10)
+plt.title('RevoBank Customer Persona Comparison', size=15, y=1.1)
+plt.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
+
+plt.savefig('cluster_spider_chart.png')
+
+#Cluster Interpretation
+
+df_result.info()
+
+##Card Brand
+
+# Calculate the percentage of each card_brand within each cluster
+card_brand_distribution = df_result.groupby('cluster')['card_brand'].value_counts(normalize=True).unstack(fill_value=0) * 100
+
+print(card_brand_distribution)
+
+##Profit per CLuster
+
+df_result = df_merged1.copy()
+df_result['cluster'] = cluster_model.labels_
+# Assume all transactions in 'amt_nonfraud_trx_L6M' represent total sales amounts
+profit_margin = 0.015  # 1.5%
+
+# Group by cluster to calculate total sales and total fraud per cluster
+cluster_profit_data = df_result.groupby('cluster').agg(
+    total_sales=('amt_nonfraud_trx_L6M', 'sum'),
+    total_fraud=('amt_fraud_trx_L6M', 'sum')
+).reset_index()
+
+# Calculate profit and net profit per cluster
+cluster_profit_data['total_profit'] = cluster_profit_data['total_sales'] * profit_margin
+cluster_profit_data['net_profit'] = cluster_profit_data['total_profit'] - cluster_profit_data['total_fraud']
+
+# Display the net profit per cluster
+print(cluster_profit_data[['cluster', 'net_profit']])
+
+##Number Customer per Cluster
+
+# How many users do we have in the data?
+customers_cluster_count = df_result.groupby('cluster')['client_id'].nunique()
+
+print(customers_cluster_count) # Print the Series directly
