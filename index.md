@@ -11,7 +11,7 @@
        <b> <img src="assets/Lambang-Universitas-Airlangga-bg-transparan.png" width="25px" /> Airlangga University</b> | Japanese Studies (2012-2019) <br>
        <b> <img src="assets/RevoU_Logo (1).png" width="25px" /> RevoU</b> | Full Stack Data Analytics (2025) <br><br>
       <strong>Working Experience:</strong><br>
-      💼 <b>Staff</b> - SRC Cerme (2019-Present) <br><br>
+      💼 <b>Operations & Inventory Control Staff</b> - SRC Cerme (2019-Present) <br><br>
       <strong>Tools:</strong><br>
       <img src="https://img.shields.io/badge/SQL-4B3621?style=flat&logo=postgresql&logoColor=white" /> 
       <img src="https://img.shields.io/badge/Python-4B3621?style=flat&logo=python&logoColor=white" />
@@ -65,9 +65,9 @@
 ---
 
 ### 🛠️ Technical Expertise
-* **Data Manipulation:** Expert in **SQL JOINs, CTEs**, and **Python Data Wrangling**.
+* **Data Manipulation:** <img src="assets/icons8-sql-96.png" width="25px" /> Expert in **SQL JOINs, CTEs**, and <img src="assets/icons8-python-96.png" width="25px" />**Python Data Wrangling**.
 * **Forecasting:** Specialized in **Statistical Modeling** and **Prophet** for demand prediction.
-* **Visualization:** High-fidelity dashboard design in **Tableau** and **Looker**.
+* **Visualization:** High-fidelity dashboard design in <img src="assets/icons8-tableau-software-48.png" width="25px" />**Tableau** and <img src="assets/icons8-google-looker-96.png" width="25px" />**Looker**.
 
 ### 🤝 Soft Skills
 * ✨ **Adaptability:** Thriving in dynamic retail environments.
