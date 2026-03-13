@@ -1,11 +1,11 @@
 <h2 id="project-maven">📈 Project 1: Inventory & Revenue Growth</h2>
 
 <p align="center">
-  <img src="assets/dashboard_screenshot.png" width="100%" style="border-radius: 10px; border: 1px solid #A68966;" alt="Project Dashboard Preview" />
+  <img src="assets/Dashboard 1(1).png" width="100%" style="border-radius: 10px; border: 1px solid #A68966;" alt="Project Dashboard Preview" />
 </p>
 
 <p align="center">
-  <a href="https://public.tableau.com/YOUR_TABLEAU_URL" target="_blank">
+  <a href="https://public.tableau.com/app/profile/riy.s/viz/FSDA_OCT25_fitriyatus_sholihah_final_project/Dashboard1" target="_blank">
     <img src="https://img.shields.io/badge/Live%20Dashboard-4B3621?style=for-the-badge&logo=tableau&logoColor=white" />
   </a>
   &nbsp;
@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="./project-maven-toys/notebook.ipynb">
+  <a href="./project-maven-toys/python code.txt">
     <img src="https://img.shields.io/badge/View%20Python%20Code-3776AB?style=for-the-badge&logo=python&logoColor=white" />
   </a>
   &nbsp;
