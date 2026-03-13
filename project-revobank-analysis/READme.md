@@ -2,7 +2,7 @@
 > **Impact:** Developed a strategy to increase credit usage by <mark><b>10% within 6 months</b></mark> through K-Means Clustering.
 
 <p align="center">
-  <a href="python_analysis.ipynb">
+  <a href="python_analysis.txt">
     <img src="https://img.shields.io/badge/View%20Python%20Code-3776AB?style=for-the-badge&logo=python&logoColor=white" />
   </a>
   &nbsp;
