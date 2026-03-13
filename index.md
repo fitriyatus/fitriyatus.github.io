@@ -4,7 +4,7 @@
 <table>
   <tr>
     <td width="300px" align="center">
-      <img src="assets/profile_photo.png" width="250px" style="border-radius: 20px; border: 2px solid #4B3621;" />
+      <img src="assets/profile_photo.jpg" width="250px" style="border-radius: 20px; border: 2px solid #4B3621;" />
     </td>
     <td>
       <strong>Education:</strong><br>
