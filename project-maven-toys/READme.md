@@ -77,5 +77,5 @@ This project analyzes the Mexico Toy Sales dataset to rectify inventory imbalanc
 
 ---
 <p align="center">
-  <a href="../index.html"><b>← Back to Main Portfolio</b></a>
+  <a href="../index.md"><b>← Back to Main Portfolio</b></a>
 </p>
