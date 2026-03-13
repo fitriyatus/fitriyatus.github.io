@@ -29,5 +29,5 @@
 *Stay tuned! I am constantly working on new datasets to uncover business value.*
 
 <p align="center">
-  <a href="index.html"><b>Return to Main Portfolio</b></a>
+  <a href="index.md"><b>Return to Main Portfolio</b></a>
 </p>
