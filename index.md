@@ -56,14 +56,14 @@
 ---
 
 ### 🛠️ Technical Expertise
-* **Data Manipulation:** Expert in **SQL JOINs, CTEs**, and **Python Data Wrangling**[cite: 43, 45].
-* **Forecasting:** Specialized in **Statistical Modeling** and **Prophet** for demand prediction[cite: 16, 107].
-* **Visualization:** High-fidelity dashboard design in **Tableau** and **Looker**[cite: 15, 26, 47, 49].
+* **Data Manipulation:** Expert in **SQL JOINs, CTEs**, and **Python Data Wrangling**.
+* **Forecasting:** Specialized in **Statistical Modeling** and **Prophet** for demand prediction.
+* **Visualization:** High-fidelity dashboard design in **Tableau** and **Looker**.
 
 ### 🤝 Soft Skills
-* ✨ **Adaptability:** Thriving in dynamic retail environments[cite: 51].
-* 🔍 **Precision:** Focused on reducing search time by <mark><b>10%</b></mark> through organization[cite: 30].
-* 🗣️ **Communication:** Turning complex data into **stakeholder-ready insights**[cite: 15, 54].
+* ✨ **Adaptability:** Thriving in dynamic retail environments.
+* 🔍 **Precision:** Focused on reducing search time by <mark><b>10%</b></mark> through organization.
+* 🗣️ **Communication:** Turning complex data into **stakeholder-ready insights**.
 
 ---
 
