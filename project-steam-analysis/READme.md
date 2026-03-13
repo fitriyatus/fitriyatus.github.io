@@ -6,7 +6,7 @@
     <img src="https://img.shields.io/badge/Live%20Dashboard-4B3621?style=for-the-badge&logo=tableau&logoColor=white" />
   </a>
   &nbsp;
-  <a href="steam%20code.txt">
+  <a href="steam_code.txt">
     <img src="https://img.shields.io/badge/View%20Python%20Code-3776AB?style=for-the-badge&logo=python&logoColor=white" />
   </a>
   &nbsp;
