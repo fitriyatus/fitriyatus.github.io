@@ -42,7 +42,7 @@ This project analyzes the Mexico Toy Sales dataset to rectify inventory imbalanc
 
 <table>
   <tr>
-    <td width="60%">
+    <td width="60%"valign="top">
       <img src="../assets/dashboard_final.png" alt="Executive Summary Dashboard" style="border-radius: 10px; border: 1px solid #A68966;">
     </td>
     <td>
