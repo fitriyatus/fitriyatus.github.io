@@ -53,6 +53,15 @@
 * **Insight:** Optimized marketing strategies based on key customer indicators[cite: 36].
 * [<b>View Project Documentation →</b>](./project-revobank-analysis/)
 
+<p align="center">
+  <a href="projects.html">
+    <img src="https://img.shields.io/badge/Explore%20More%20Projects-4B3621?style=for-the-badge&logo=github&logoColor=white" />
+  </a>
+</p>
+
+<p align="center">
+  <i>Click the button above to see my full archive of data analysis work.</i>
+</p>
 ---
 
 ### 🛠️ Technical Expertise
