@@ -35,7 +35,7 @@ This project addresses low credit card utilization at RevoBank, Indonesia. By le
     <td width="60%">
       <img src="../assets/customer_cluster.png" alt="Customer Persona" style="border-radius: 10px; border: 1px solid #A68966;">
     </td>
-    <td>
+    <td valign="top">
       <h4>Key Insights:</h4>
       <ul>
         <li><b>Persona ID:</b> Clusters 0, 1, and 2 represent "Stable Mass," "Power Users," and "Affluent Sleepers."</li>
@@ -53,7 +53,7 @@ This project addresses low credit card utilization at RevoBank, Indonesia. By le
     <td width="60%">
       <img src="../assets/elbow_revobank.png" alt="Elbow Method Chart" style="border-radius: 10px; border: 1px solid #A68966;">
     </td>
-    <td>
+    <td valign="top">
       <h4>Key Insights:</h4>
       <ul>
         <li><b>Model Accuracy:</b> Used the <b>Elbow Method</b> and Silhouette Scores to validate the 3-cluster selection.</li>
@@ -71,7 +71,7 @@ This project addresses low credit card utilization at RevoBank, Indonesia. By le
     <td width="60%">
       <img src="../assets/age_spend.png" alt="Age Segment Bar Chart" style="border-radius: 10px; border: 1px solid #A68966;">
     </td>
-    <td>
+    <td valign="top">
       <h4>Key Insights:</h4>
       <ul>
         <li><b>Cash Cow:</b> The 46–60 age segment contributes a massive <mark><b>Rp 169.5 Billion</b></mark> in spending.</li>
@@ -89,7 +89,7 @@ This project addresses low credit card utilization at RevoBank, Indonesia. By le
     <td width="60%">
       <img src="../assets/risk_credit.png" alt="DTI vs Credit Score" style="border-radius: 10px; border: 1px solid #A68966;">
     </td>
-    <td>
+    <td valign="top">
       <h4>Key Insights:</h4>
       <ul>
         <li><b>DTI Analysis:</b> Correlated Debt-to-Income ratios with credit scores to manage risk.</li>
