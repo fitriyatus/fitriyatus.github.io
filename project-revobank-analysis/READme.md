@@ -107,5 +107,5 @@ This project addresses low credit card utilization at RevoBank, Indonesia. By le
 
 ---
 <p align="center">
-  <a href="../index.md"><b>← Back to Main Portfolio</b></a>
+  <a href="../index.html"><b>← Back to Main Portfolio</b></a>
 </p>
