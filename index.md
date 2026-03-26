@@ -54,7 +54,7 @@
 * [<b>View Project Documentation →</b>](./project-revobank-analysis/)
 
 <p align="center">
-  <a href="projects.md">
+  <a href="projects.html">
     <img src="https://img.shields.io/badge/Explore%20More%20Projects-4B3621?style=for-the-badge&logo=github&logoColor=white" />
   </a>
 </p>
