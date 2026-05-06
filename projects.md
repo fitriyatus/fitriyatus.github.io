@@ -9,11 +9,11 @@
 
 ---
 
-## 🏗️ Project 4: [Project Title Here]
-* **Objective:** [Briefly describe what you wanted to achieve]
-* **Impact:** <mark><b>[Key Result, e.g., 5% Efficiency Gain]</b></mark>
-* **Tools:** `SQL`, `Excel`
-* [**View Details →**](./project-folder-4/)
+## 🏗️ Project 4: Loan Portfolio Risk Analysis: Cohort & Risk Driver Assessment 
+* **Objective:** Assess portfolio health, identify core drivers of loan performance, and evaluate cohort trends
+* **Impact:** <mark><b>Analysis revealed a steady cohort performance improvement from 96.2% in 2012 to 98.8% in 2019. However, 60-month loans yielded a lower TKB30 (97.87%) despite higher interest rates. To optimize returns, the portfolio recommends tightening credit standards for low-income brackets and reducing exposure to high-risk loan purposes.</b></mark>
+* **Tools:** `Python`, `Google Collab`
+* [**View Details →**](./project-loan-analysis/)
 
 ---
 
