@@ -1,1 +1,1015 @@
+import pandas as pd
+import re
+import numpy as np
 
+#import data and save it in df
+df_customer = pd.read_csv("https://drive.google.com/uc?export=download&id=1GxzLzSCKPvLI81X5ncKiVfxnmeq-OAB_")
+
+# df_customer.info()
+
+# df_customer.head()
+
+#import data and save it in df
+df_loan = pd.read_csv("https://drive.google.com/uc?export=download&id=1ctN9TcA5IEbigEBXXNc905UgFFAZ9eQ4")
+
+# df_loan.info()
+
+##Clean customer id
+
+def clean_customer_id(x):
+    if pd.isna(x):
+        return x
+    return ''.join(re.findall(r'[a-zA-Z0-9]', str(x)))
+
+df_customer['customer_id_clean'] = df_customer['customer_id'].apply(clean_customer_id)
+df_loan['customer_id_clean'] = df_loan['customer_id'].apply(clean_customer_id)
+
+df = df_loan.merge(df_customer, on='customer_id', how='left')
+
+# df.head()
+
+#import data and save it in df
+df_cyear = pd.read_csv("https://drive.google.com/uc?export=download&id=1mC8Btxrc7fpubnsizVzJoXYHLFT85Sbh")
+# df_cyear.info()
+
+#import data and save it in df
+df_pur = pd.read_csv("https://drive.google.com/uc?export=download&id=155Pf3cGOltS4rRGT7GEtir9DDtypRCEk")
+# df_pur.info()
+
+#import data and save it in df
+df_lreg = pd.read_csv("https://drive.google.com/uc?export=download&id=1WTBYrtVWBMoE8_VZLd9gDsd3uiKcGe1r")
+# df_lreg.info()
+
+#import data and save it in df
+df_streg = pd.read_csv("https://drive.google.com/uc?export=download&id=1qULdscgYMd3cNtmVyllcFFO5Eh13ErcV")
+# df_streg.info()
+
+#Active Status
+
+active_status = [
+    'Current',
+    'In Grace Period',
+    'Late (16-30 days)',
+    'Late (31-120 days)',
+    'Default'
+]
+
+df['is_active'] = df['loan_status'].isin(active_status)
+
+df_active = df_loan[df_loan['loan_status'].isin(active_status)].copy()
+
+df_active['is_dpd_gt30'] = df_active['loan_status'].isin(['Late (31-120 days)', 'Default'])
+
+# Define Logic for DPD > 30
+# Based on your status: 'Late (31-120 days)' and 'Default' fall into this
+df_active['is_dpd_gt30'] = df_active['loan_status'].isin(['Late (31-120 days)', 'Default'])
+
+# Calculate Metrics
+total_os = df_active['funded_amount'].sum()
+default_os = df_active[df_active['loan_status'] == 'Default']['funded_amount'].sum()
+dpd30_plus_os = df_active[df_active['is_dpd_gt30']]['funded_amount'].sum()
+
+enr = total_os - default_os
+tkb30 = 1 - (dpd30_plus_os / total_os)
+
+print(f"Total OS: {total_os} | ENR: {enr} | TKB30: {tkb30:.2%}")
+
+Total OS: 2801078850 | ENR: 2800883575 | TKB30: 98.11%
+
+Total OS (2.8 Billion): This is your Portfolio Size. It’s the total amount of money currently "on the street" with your borrowers.
+
+ENR (2.8 Billion): Since your ENR is almost identical to your OS, it means your Default Rate is currently very low. You only have about 195,000 in "Default" status. This is good, but stay sharp—defaults are "lagging indicators" (they happen long after the problem starts).
+
+TKB30 (98.11%): This is your Success Rate. It means that for every Rp100 you’ve lent out, Rp98.11 is either being paid on time or is only slightly late (under 30 days). In the industry, a TKB30 above 95% is generally considered very healthy.
+
+#Total All
+
+df['OS'] = df['funded_amount']
+
+df['ENR'] = df.apply(
+    lambda x: x['funded_amount'] if x['loan_status'] != 'Default' else 0,
+    axis=1
+)
+
+total_os = df['OS'].sum()
+total_enr = df['ENR'].sum()
+num_customers = df['customer_id_clean_y'].nunique()
+
+print(num_customers)
+print(total_os)
+print(total_enr)
+
+Total customer = 270299
+Totaal OS = 4166072400
+Total ENR = 4165877125
+
+# df.head()
+
+#Issue Year
+
+# Convert issue_date to datetime if it isn't already
+df_active['issue_date'] = pd.to_datetime(df_active['issue_date'])
+df_active['issue_year'] = df_active['issue_date'].dt.year
+
+# Aggregate by Cohort
+cohort_analysis = df_active.groupby('issue_year').agg(
+    num_customers=('customer_id', 'nunique'),
+    total_os=('funded_amount', 'sum'),
+    dpd30_os=('funded_amount', lambda x: x[df_active.loc[x.index, 'is_dpd_gt30']].sum()),
+    default_os=('funded_amount', lambda x: x[df_active.loc[x.index, 'loan_status'] == 'Default'].sum())
+).reset_index()
+
+# Final Metric Calculations
+cohort_analysis['ENR'] = cohort_analysis['total_os'] - cohort_analysis['default_os']
+cohort_analysis['TKB30'] = 1 - (cohort_analysis['dpd30_os'] / cohort_analysis['total_os'])
+
+print(cohort_analysis[['issue_year', 'total_os', 'ENR', 'TKB30']])
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.lineplot(x='issue_year', y='TKB30', data=cohort_analysis, marker='o')
+plt.title('TKB30 Performance by Cohort (Issue Year)')
+plt.xlabel('Issue Year')
+plt.ylabel('TKB30')
+plt.ylim(cohort_analysis['TKB30'].min() * 0.99, cohort_analysis['TKB30'].max() * 1.005) # Adjust y-axis for better visibility
+plt.grid(True)
+plt.xticks(cohort_analysis['issue_year'])
+plt.tight_layout()
+plt.show()
+
+- 2012-2014, Growth : Tiny (2M - 128M), TKB30 Quality : Lower (~96.2% - 96.5%)
+The "Startup" Phase: You were small and still learning who to lend to. Risk was slightly higher.
+
+- 2015-2017, Rapid Growth, TKB30 : Improving (~97.4%)
+Scaling Up: You started lending more (549M), and surprisingly, your risk actually went down. This is a great sign.
+
+- 2018-2019 Growth : Peak Volume, TKB30 : Excellent (98.6% - 98.8%)
+Optimization: You are lending the most money ever, and your TKB30 is at its highest. Your credit team likely improved their "scoring model" here.
+
+- Low TKB Cohort (e.g., 2012 - 96.2%): This is often called a "Bad Vintage." It means the loans issued that year were either too risky, or the economy was bad that year. It shows "Amateur" lending.
+
+- High TKB Cohort (e.g., 2019 - 98.8%): This is "Mature" lending. It means your algorithms got better at rejecting bad borrowers, or you are only lending to "safe" people (like Mortgage holders).
+
+The line chart showing TKB30 performance by cohort (issue year) clearly illustrates the company's progression. It highlights:
+
+2012-2014 (Startup Phase): Lower TKB30 values, indicating a higher risk profile during the initial growth stages, often referred to as a 'Bad Vintage'.
+2015-2017 (Rapid Growth): A noticeable improvement in TKB30, suggesting that as lending volume increased, risk management also improved.
+2018-2019 (Optimization/Mature Lending): The highest TKB30 values, reaching excellent levels. This suggests improved credit scoring and a more disciplined lending approach in later years.
+Overall, the chart visually confirms a positive trend of increasing loan quality over time.
+
+#Risk by Home
+
+# 1. Merge Customer info into our Active Loans
+df_merged = pd.merge(df_active, df_customer[['customer_id', 'emp_title', 'home_ownership']], on='customer_id', how='left')
+
+# 2. Calculate TKB30 by Home Ownership
+risk_by_home = df_merged.groupby('home_ownership').agg(
+    total_os=('funded_amount', 'sum'),
+    dpd30_os=('funded_amount', lambda x: x[df_merged.loc[x.index, 'is_dpd_gt30']].sum())
+)
+risk_by_home['TKB30'] = 1 - (risk_by_home['dpd30_os'] / risk_by_home['total_os'])
+
+print(risk_by_home.sort_values('TKB30'))
+
+- RENT (0.977): Renters have the lowest TKB30. This is common because renters are more mobile and typically have fewer assets. They represent a large chunk of your portfolio (~Rp962M), making them your primary risk area.
+
+- MORTGAGE (0.983): These are your "star" customers. Someone with a mortgage is tied to a property; they have a high "cost of failure" if they stop paying.
+
+- Takeaway: If you want to improve your overall TKB30, you should look closely at how you approve "Renters."
+
+# df_merged.info()
+
+#Income dibagi 4 bukan dari percentile
+
+# Add missing columns to df_merged from df
+df_merged = pd.merge(df_merged, df[['customer_id', 'annual_inc', 'emp_length']], on='customer_id', how='left')
+
+# 1. Income Buckets
+df_merged['income_group'] = pd.qcut(
+    df_merged['annual_inc'],
+    q=4,
+    labels=['Low', 'Medium', 'High', 'Very High']
+)
+
+# 2. Employment Length
+df_merged['emp_length_num'] = (
+    df_merged['emp_length']
+    .str.extract(r'(\d+)')
+    .fillna(0)
+    .astype(int)
+)
+
+# Formula for Risk by Attribute
+
+attr_risk = df_merged.groupby('income_group', observed=False).agg(
+    total_os=('funded_amount', 'sum'),
+    dpd30_os=('funded_amount', lambda x: x[df_merged.loc[x.index, 'is_dpd_gt30']].sum())
+)
+attr_risk['TKB30'] = 1 - (attr_risk['dpd30_os'] / attr_risk['total_os'])
+
+Income Groups and TKB30: The analysis shows a clear trend: higher income groups tend to have better TKB30 scores.
+
+    Low income group has a TKB30 of approximately 97.88%.
+    Medium income group has a TKB30 of approximately 98.01%.
+    High income group has a TKB30 of approximately 98.04%.
+    Very High income group has the best TKB30 at approximately 98.33%.
+
+This indicates that customers with higher annual incomes generally represent lower credit risk, as they are less likely to fall into the 'Late (31-120 days)' or 'Default' categories. This trend aligns with typical credit risk assessments, where financial stability often correlates with repayment reliability.
+
+#Risk 36M n 60M by overall
+
+# Grouping by Term (e.g., 36 months vs 60 months)
+term_risk = df_merged.groupby('term').agg(
+    avg_int_rate=('int_rate', 'mean'),
+    total_os=('funded_amount', 'sum'),
+    dpd30_os=('funded_amount', lambda x: x[df_merged.loc[x.index, 'is_dpd_gt30']].sum())
+)
+term_risk['TKB30'] = 1 - (term_risk['dpd30_os'] / term_risk['total_os'])
+
+print(term_risk)
+
+- The 60-Month Trap: You’ll notice that 60-month loans have a higher average interest rate (15.2% vs. 11.8%). In Fintech, we charge more for longer loans because there is a higher chance something will go wrong over 5 years compared to 3 years.
+
+- The Risk Gap: The TKB30 for 60 months (97.87%) is lower than 36 months (98.29%).
+
+- Meaning: Even though you are charging more interest (making more money per loan), these customers are failing to pay more often.
+
+- The "Why": A 0.42% difference might look small, but on a 1.2 Billion portfolio, that is millions in potential losses.
+
+#Company growth
+
+# 1. Define a "Risky" segment (e.g., Renters or Low Income)
+# Let's calculate the % of "Renters" in each year
+cohort_mix = df_merged.groupby('issue_year').agg(
+    total_customers=('customer_id', 'count'),
+    renter_count=('home_ownership', lambda x: (x == 'RENT').sum()),
+    low_inc_count=('income_group', lambda x: (x == 'Low').sum())
+).reset_index()
+
+# 2. Calculate the "Concentration Rate"
+cohort_mix['renter_rate'] = cohort_mix['renter_count'] / cohort_mix['total_customers']
+cohort_mix['low_inc_rate'] = cohort_mix['low_inc_count'] / cohort_mix['total_customers']
+
+print(cohort_mix)
+
+
+
+- Hyper-Growth: Look at the total_customers. In 2012, you had 112 people. By 2019, you had 47,191. You scaled the business by over 400x.
+
+- Consistent Risk Profile: Interestingly, your renter_rate and low_inc_rate have stayed relatively stable since 2016 (around 39% for renters and 24-27% for low income).
+
+- Meaning: Even as the company grew massive, the "Credit Policy" stayed consistent. You didn't start "chasing" riskier customers just to grow, which is a sign of a very disciplined company.
+
+- The 2018 Warning Sign: In 2018, the low_inc_rate hit its peak at 27.3%. Usually, when you take on more low-income borrowers, you expect TKB30 to drop. You should check if the TKB30 for the 2018 cohort is lower than 2019.
+
+#Berdasarkan State Overall
+
+# Add addr_state to df_merged for this operation
+df_merged_with_addr = pd.merge(df_merged, df_customer[['customer_id', 'addr_state']], on='customer_id', how='left')
+
+df_merged_with_state = pd.merge(df_merged, df_streg[['state', 'subregion', 'region']], on='state', how='left')
+
+df_merged_with_addr.groupby('addr_state')['funded_amount'].sum().sort_values(ascending=False)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Group by addr_state and sum funded_amount, then get the top 4
+top_states = df_merged_with_addr.groupby('addr_state')['funded_amount'].sum().nlargest(4).reset_index()
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x='addr_state', y='funded_amount', data=top_states, palette='viridis', hue='addr_state', legend=False)
+plt.title('Top 4 States by Funded Amount')
+plt.xlabel('State')
+plt.ylabel('Funded Amount')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+
+TOP 4 by funded ammount:
+
+      CA	379147750
+      TX	244724600
+      NY	223084000
+      FL	202369100
+
+target_states = ['CA', 'TX', 'NY', 'FL']
+target_years = [2018, 2019]
+
+# Filter for target states and years
+df_filtered_state_year = df_merged_with_addr[
+    (df_merged_with_addr['addr_state'].isin(target_states)) &
+    (df_merged_with_addr['issue_year'].isin(target_years))
+].copy()
+
+# Group by issue_year, addr_state, and purpose to calculate TKB30
+state_year_purpose_analysis = df_filtered_state_year.groupby(['issue_year', 'addr_state', 'purpose']).agg(
+    total_os=('funded_amount', 'sum'),
+    dpd30_os=('funded_amount', lambda x: x[df_filtered_state_year.loc[x.index, 'is_dpd_gt30']].sum())
+).reset_index()
+
+# Calculate TKB30, handling potential division by zero for total_os
+state_year_purpose_analysis['TKB30'] = state_year_purpose_analysis.apply(
+    lambda row: 1 - (row['dpd30_os'] / row['total_os']) if row['total_os'] != 0 else 0,
+    axis=1
+)
+
+# Filter out rows where TKB30 calculation might be meaningless (e.g., total_os is 0 after filtering)
+state_year_purpose_analysis = state_year_purpose_analysis[state_year_purpose_analysis['total_os'] > 0]
+
+# Find the purpose with the highest and lowest TKB30 for each state and year
+results = []
+for year in target_years:
+    for state in target_states:
+        df_temp = state_year_purpose_analysis[
+            (state_year_purpose_analysis['issue_year'] == year) &
+            (state_year_purpose_analysis['addr_state'] == state)
+        ]
+
+        if not df_temp.empty:
+            highest_tkb30_purpose = df_temp.loc[df_temp['TKB30'].idxmax()]
+            lowest_tkb30_purpose = df_temp.loc[df_temp['TKB30'].idxmin()]
+
+            results.append({
+                'Year': year,
+                'State': state,
+                'Highest_TKB30_Purpose': highest_tkb30_purpose['purpose'],
+                'Highest_TKB30_Value': highest_tkb30_purpose['TKB30'],
+                'Lowest_TKB30_Purpose': lowest_tkb30_purpose['purpose'],
+                'Lowest_TKB30_Value': lowest_tkb30_purpose['TKB30']
+            })
+
+results_df = pd.DataFrame(results)
+print(results_df)
+
+
+      Year	State	Highest_TKB30_Purpose	Highest_TKB30_Value	Lowest_TKB30_Purpose	Lowest_TKB30_Value
+      2018	CA	house	1.0	major_purchase	0.941199
+      2018	TX	car	1.0	home_improvement	0.972641
+      2018	NY	car	1.0	other	0.983396
+      2018	FL	house	1.0	vacation	0.737959
+      2019	CA	car	1.0	house	0.965924
+      2019	TX	house	1.0	major_purchase	0.963409
+      2019	NY	car	1.0	house	0.948520
+      2019	FL	car	1.0	small_business	0.934121
+
+Key Observations:
+
+- Highest TKB30 (Perfect Performance): In many cases, a TKB30 value of 1.0 indicates perfect performance (no DPD > 30 loans for that purpose). For example, 'house' loans in CA and FL (2018), and 'car' loans in TX (2018), NY (2018, 2019), and FL (2019) achieved this.
+
+- Lowest TKB30:
+2018: 'vacation' loans in Florida had a significantly low TKB30 of 0.737959, suggesting a very high risk.
+2019: 'small_business' loans in Florida also showed a low TKB30 of 0.934121.
+Shifts in Purpose Performance: The purpose with the highest and lowest TKB30 can change year-over-year and state-by-state, reflecting evolving risk profiles or market conditions.
+
+
+This table provides specific insights into which loan purposes are performing best and worst in your key states over these two years, enabling a more granular risk assessment.
+
+df_merged_with_state.groupby('subregion')['funded_amount'].sum()
+
+In Fintech, economic problems usually start in a specific subregion first. For example, if the "East North Central" subregion (which has Rp362M in loans) is full of factory workers and those factories close, that subregion’s TKB30 will crash before the rest of the country. By looking at subregions, you can spot "smoke" before the whole "forest" (Region) catches fire.
+
+- The "Cash Cow" (South): The South has 36.6% of your entire business (over 1 Billion!). Its TKB30 (98.1%) is solid. This region is literally keeping the company's lights on.
+
+- The "Problem Child" (West): The West has the lowest TKB30 (97.97%) but is the second-largest region.
+
+- Critique: Look at the avg_int_rate. You are charging the West 12.8%, but you are charging the South 13.0%.
+
+- The Mistake: You are charging the safer region (South) more and the riskier region (West) less! This is a "Pricing Inefficiency."
+
+The "Big Three" Dominance: California (CA), Texas (TX), and New York (NY) make up the largest portion of your lending.
+
+CA: ~379M
+
+TX: ~244M
+
+NY: ~223M
+
+What this means: These states are the "engines" of your business. If the tech industry in California crashes or the oil industry in Texas takes a hit, a massive chunk of your total portfolio is suddenly at risk.
+
+The "Long Tail": You have many states like Wyoming (WY) or North Dakota (ND) with very small amounts (under 6M). These are "experimental" markets for you.
+
+In Fintech, we use the formula for Concentration Ratio:$$\text{Concentration Ratio} = \frac{\text{Total OS in State X}}{\text{Total Portfolio OS}}$$If any single state represents more than 10-15% of your business, you are "Highly Concentrated."
+
+Based on your previous Total OS of ~2.8B, California is at roughly 13.5%. This is right on the edge of being a "Red Flag." Why does this matter?
+
+Regulatory Risk: Every state has different lending laws. If California passes a law capping interest rates at 10%, your "Wedding" loans (where you charge 21%) would become illegal there, hurting your profits instantly.
+
+Economic Shocks: If a hurricane hits Florida (FL), the TKB30 for that Rp202M segment will likely drop because people will prioritize fixing their houses over paying back your loan.
+
+#Purpose Analysis
+
+purpose_analysis = df_merged.groupby('purpose').agg(
+    avg_rate=('int_rate', 'mean'),
+    tkb30=('funded_amount', lambda x: 1 - (x[df_merged.loc[x.index, 'is_dpd_gt30']].sum() / x.sum()))
+)
+
+print(purpose_analysis)
+
+- The "Wedding" Paradox (21.3% Rate | 100% TKB30): This is fascinating. You are charging the highest interest rate here, yet everyone is paying back on time.
+
+- Fintech Insight: This suggests "High Intent." People are highly motivated to keep their credit clean during major life milestones, or your credit team is extremely picky about which weddings they fund.
+
+- The "Renewable Energy" & "Vacation" Red Flags: These have the lowest TKB30 (95.7% and 96%).
+
+- Fintech Insight: These are "Lifestyle" or "Experimental" loans. Unlike a Car (which has 98.6% TKB30 because you can repossess a car), you can't repossess a vacation. If the borrower hits a financial bump, the "Vacation" loan is the first one they stop paying.
+
+- Debt Consolidation (97.9% TKB30): This is usually the largest segment for Fintechs. People take one loan to pay off 5 credit cards. If this TKB30 drops below 97%, the company is in trouble because this is your "Bread and Butter."
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Ensure 'purpose' is the index for the heatmap rows
+purpose_heatmap_data = purpose_analysis[['tkb30']].copy()
+
+plt.figure(figsize=(6, 10))
+sns.heatmap(purpose_heatmap_data, annot=True, cmap='viridis', fmt=".3f", linewidths=.5, cbar_kws={'label': 'TKB30'})
+plt.title('TKB30 Performance by Loan Purpose')
+plt.ylabel('Loan Purpose')
+plt.show()
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(12, 7))
+sns.barplot(x=purpose_analysis.index, y='tkb30', data=purpose_analysis.reset_index(), palette='viridis', hue='purpose', legend=False)
+plt.title('TKB30 Performance by Loan Purpose')
+plt.xlabel('Loan Purpose')
+plt.ylabel('TKB30')
+plt.ylim(purpose_analysis['tkb30'].min() * 0.95, 1.005) # Adjust y-axis for better visibility
+plt.xticks(rotation=45, ha='right') # Rotate labels for better readability
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+
+#Low Income COmparasion in Overall
+
+# 1. Filter for only Low Income borrowers
+df_low_inc = df_merged[df_merged['income_group'] == 'Low']
+
+# 2. Compare 2018 vs 2019
+low_inc_comparison = df_low_inc[df_low_inc['issue_year'].isin([2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019])].groupby('issue_year').agg(
+    total_os=('funded_amount', 'sum'),
+    dpd30_os=('funded_amount', lambda x: x[df_low_inc.loc[x.index, 'is_dpd_gt30']].sum())
+)
+
+# 3. Calculate TKB30
+low_inc_comparison['TKB30'] = 1 - (low_inc_comparison['dpd30_os'] / low_inc_comparison['total_os'])
+
+print("Low Income Quality Check:")
+print(low_inc_comparison)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Reset index to make 'issue_year' a column for plotting
+low_inc_plot_data = low_inc_comparison.reset_index()
+
+plt.figure(figsize=(8, 5))
+sns.lineplot(data=low_inc_plot_data, x='issue_year', y='TKB30', marker='o')
+plt.title('TKB30 Comparison for Low Income Borrowers (2012 ~ 2019)')
+plt.xlabel('Issue Year')
+plt.ylabel('TKB30')
+plt.ylim(0.90, 0.987) # Set y-axis limits to better show the subtle change
+plt.grid(True)
+plt.show()
+
+#Purpose count by Years Min n Max
+
+purpose_counts_by_year = df_active.groupby(['issue_year', 'purpose']).size().reset_index(name='loan_count')
+
+min_max_purpose_by_year = purpose_counts_by_year.groupby('issue_year').agg(
+    min_loan_purpose=('purpose', lambda x: purpose_counts_by_year.loc[x.index[x.argmin()], 'purpose']),
+    min_loan_count=('loan_count', 'min'),
+    max_loan_purpose=('purpose', lambda x: purpose_counts_by_year.loc[x.index[x.argmax()], 'purpose']),
+    max_loan_count=('loan_count', 'max')
+).reset_index()
+
+print("Loan Purpose with Min/Max Count by Year:")
+print(min_max_purpose_by_year)
+
+Loan Purpose with Min/Max Count by Year:
+
+      Issue Year	Minimum Loan Purpose	Minimum Loan Count	Maximum Loan Purpose	Maximum Loan Count
+
+      2012	car	1	wedding	72
+      2013	car	1	wedding	792
+      2014	car	5	vacation	4912
+      2015	car	3	vacation	2549
+      2016	car	23	vacation	21330
+      2017	car	14	vacation	17636
+      2018	car	26	vacation	24084
+      2019	car	22	vacation	25742
+
+This table highlights interesting trends. For instance, 'car' loans consistently have one of the lowest counts in earlier years, while 'wedding' loans had the highest in 2012 and 2013, shifting to 'vacation' loans in later years.
+
+purpose_year_analysis = df_merged.groupby(['issue_year', 'purpose']).agg(
+    total_os=('funded_amount', 'sum'),
+    dpd30_os=('funded_amount', lambda x: x[df_merged.loc[x.index, 'is_dpd_gt30']].sum())
+).reset_index()
+
+purpose_year_analysis['TKB30'] = 1 - (purpose_year_analysis['dpd30_os'] / purpose_year_analysis['total_os'])
+
+# Pivot the table for the heatmap
+heatmap_data = purpose_year_analysis.pivot_table(index='purpose', columns='issue_year', values='TKB30')
+
+plt.figure(figsize=(12, 8))
+sns.heatmap(heatmap_data, annot=True, cmap='coolwarm_r', fmt=".3f", linewidths=.5)
+plt.title('TKB30 Performance by Loan Purpose and Issue Year')
+plt.xlabel('Issue Year')
+plt.ylabel('Loan Purpose')
+plt.show()
+
+avg_int_rate_year_analysis = df_merged.groupby(['issue_year', 'purpose']).agg(
+    avg_int_rate=('int_rate', 'mean')
+).reset_index()
+
+# Pivot the table for the heatmap
+heatmap_data_int_rate = avg_int_rate_year_analysis.pivot_table(index='purpose', columns='issue_year', values='avg_int_rate')
+
+plt.figure(figsize=(12, 8))
+sns.heatmap(heatmap_data_int_rate, annot=True, cmap='coolwarm', fmt=".3f", linewidths=.5)
+plt.title('Average Interest Rate by Loan Purpose and Issue Year')
+plt.xlabel('Issue Year')
+plt.ylabel('Loan Purpose')
+plt.show()
+
+# Ensure df_merged_with_addr is defined
+df_merged_with_addr = pd.merge(df_merged, df_customer[['customer_id', 'addr_state']], on='customer_id', how='left')
+
+# Ensure df_geo is defined
+df_geo = pd.merge(df_merged_with_addr, df_streg, left_on='addr_state', right_on='state', how='left')
+
+wedding_loans_2012_2013 = df_geo[
+    (df_geo['purpose'] == 'wedding') &
+    (df_geo['issue_year'].isin([2012, 2013]))
+]
+
+unique_states_wedding = wedding_loans_2012_2013['addr_state'].unique()
+unique_regions_wedding = wedding_loans_2012_2013['region'].unique()
+unique_subregions_wedding = wedding_loans_2012_2013['subregion'].unique()
+
+print(f"States with 'wedding' purpose loans in 2012/2013: {list(unique_states_wedding)}")
+print(f"Regions with 'wedding' purpose loans in 2012/2013: {list(unique_regions_wedding)}")
+print(f"Subregions with 'wedding' purpose loans in 2012/2013: {list(unique_subregions_wedding)}")
+
+Here are the states, regions, and subregions that had 'wedding' purpose loans in 2012 and 2013, as requested:
+
+      States: ['TX', 'VA', 'WA', 'CT']
+      Regions: ['South', 'West', 'Northeast']
+      Subregions: ['West South Central', 'South Atlantic', 'Pacific', 'New England']
+
+#Analysis by Percentile Income
+
+# 1. Create Percentile-based Income Groups (0-20%, 20-40%, etc.)
+labels = ['Bottom 20%', '20-40%', '40-60%', '60-80%', 'Top 20%']
+df_merged['income_percentile'] = pd.qcut(df_merged['annual_inc'], q=5, labels=labels)
+
+# 2. Add Ownership Flags (Logic: Purpose 'car' = Has Car, home_ownership 'OWN/MORTGAGE' = Has House)
+df_merged['has_car_loan'] = df_merged['purpose'] == 'car'
+df_merged['has_house'] = df_merged['home_ownership'].isin(['OWN', 'MORTGAGE'])
+
+# Analysis Table: Income Group + Assets
+income_asset_analysis = df_merged.groupby(['income_percentile', 'has_house', 'has_car_loan']).agg(
+    total_os=('funded_amount', 'sum'),
+    tkb30=('funded_amount', lambda x: 1 - (x[df_merged.loc[x.index, 'is_dpd_gt30']].sum() / x.sum()))
+).reset_index()
+
+# 1. Define the Threshold
+portfolio_avg_tkb = 0.9811
+
+# Add 'verification_status' to df_merged if it's missing
+# Assuming 'loan_id' is the unique identifier for loans in df_merged and df
+if 'verification_status' not in df_merged.columns:
+    df_merged = pd.merge(df_merged, df[['loan_id', 'verification_status']], on='loan_id', how='left')
+
+# 2. Identify Segments by Verification Status and Income
+performance_compare = df_merged.groupby(['income_percentile', 'verification_status']).agg(
+    tkb30=('funded_amount', lambda x: 1 - (x[df_merged.loc[x.index, 'is_dpd_gt30']].sum() / x.sum())),
+    avg_rate=('int_rate', 'mean')
+).reset_index()
+
+# 3. Tag them for the report
+performance_compare['status'] = performance_compare['tkb30'].apply(
+    lambda x: 'GOOD' if x >= portfolio_avg_tkb else 'BAD'
+)
+
+print(performance_compare.sort_values('tkb30'))
+
+The table above shows a comparison of TKB30 and average interest rates across different income percentiles and verification statuses. Loans are categorized as 'GOOD' or 'BAD' based on whether their TKB30 is above or below the portfolio average of 0.9811. For example, 'Not Verified' loans generally perform better (higher TKB30) across all income groups than 'Verified' or 'Source Verified' loans.
+
+# 1. Group by income_percentile and calculate core metrics
+income_percentile_analysis = df_merged.groupby('income_percentile', observed=False).agg(
+    total_os=('funded_amount', 'sum'),
+    dpd30_os=('funded_amount', lambda x: x[df_merged.loc[x.index, 'is_dpd_gt30']].sum()),
+    avg_rate=('int_rate', 'mean'),
+    avg_installment=('installment', 'mean') # Assuming 'installment' is a proxy for usual payment
+).reset_index()
+
+income_percentile_analysis['TKB30'] = 1 - (income_percentile_analysis['dpd30_os'] / income_percentile_analysis['total_os'])
+
+# 2. Calculate term distribution by income percentile
+term_distribution = df_merged.groupby(['income_percentile', 'term'], observed=False).size().unstack(fill_value=0)
+term_distribution_pct = term_distribution.div(term_distribution.sum(axis=1), axis=0)
+
+# 3. Calculate home_ownership distribution by income percentile
+home_ownership_distribution = df_merged.groupby(['income_percentile', 'home_ownership'], observed=False).size().unstack(fill_value=0)
+home_ownership_distribution_pct = home_ownership_distribution.div(home_ownership_distribution.sum(axis=1), axis=0)
+
+print("Income Percentile Analysis:")
+print(income_percentile_analysis[['income_percentile', 'TKB30', 'avg_rate', 'avg_installment']])
+
+print("\nLoan Term Distribution by Income Percentile (%):")
+print(term_distribution_pct)
+
+print("\nHome Ownership Distribution by Income Percentile (%):")
+print(home_ownership_distribution_pct)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=performance_compare, x='avg_rate', y='tkb30', hue='income_percentile', style='status', s=100)
+
+# Add a horizontal line for Portfolio Average
+plt.axhline(portfolio_avg_tkb, color='red', linestyle='--', label='Portfolio Avg TKB30')
+plt.title('Risk vs Reward: TKB30 vs Interest Rate by Segment')
+plt.xlabel('Average Interest Rate')
+plt.ylabel('TKB30 (Success Rate)')
+plt.legend()
+plt.show()
+
+#Region Analysis Overall
+
+df_geo = pd.merge(df_merged_with_addr, df_streg, left_on='addr_state', right_on='state', how='left')
+
+# 2. Calculate TKB30 and Volume by Region
+region_analysis = df_geo.groupby('region').agg(
+    total_os=('funded_amount', 'sum'),
+    dpd30_os=('funded_amount', lambda x: x[df_geo.loc[x.index, 'is_dpd_gt30']].sum()),
+    avg_int_rate=('int_rate', 'mean')
+)
+
+region_analysis['TKB30'] = 1 - (region_analysis['dpd30_os'] / region_analysis['total_os'])
+region_analysis['portfolio_share'] = (region_analysis['total_os'] / region_analysis['total_os'].sum()) * 100
+
+print(region_analysis.sort_values('TKB30', ascending=False))
+
+# Calculate TKB30 by Subregion
+subregion_analysis = df_geo.groupby('subregion').agg(
+    total_os=('funded_amount', 'sum'),
+    dpd30_os=('funded_amount', lambda x: x[df_geo.loc[x.index, 'is_dpd_gt30']].sum())
+)
+
+subregion_analysis['TKB30'] = 1 - (subregion_analysis['dpd30_os'] / subregion_analysis['total_os'])
+
+print("\nTKB30 by Subregion:")
+print(subregion_analysis.sort_values('TKB30'))
+
+# Find the lowest TKB30 by Region
+lowest_region_tkb30 = region_analysis.sort_values('TKB30').iloc[0]
+print("\nRegion with the Lowest TKB30:")
+print(lowest_region_tkb30[['TKB30']])
+
+# Find the lowest TKB30 by Subregion
+lowest_subregion_tkb30 = subregion_analysis.sort_values('TKB30').iloc[0]
+print("\nSubregion with the Lowest TKB30:")
+print(lowest_subregion_tkb30[['TKB30']])
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(12, 7))
+sns.barplot(x=subregion_analysis.index, y='TKB30', data=subregion_analysis, palette='viridis', hue=subregion_analysis.index.name, legend=False)
+plt.title('TKB30 Performance by Subregion')
+plt.xlabel('Subregion')
+plt.ylabel('TKB30')
+plt.ylim(subregion_analysis['TKB30'].min() * 0.99, subregion_analysis['TKB30'].max() * 1.005) # Adjust y-axis for better visibility
+plt.xticks(rotation=45, ha='right') # Rotate labels for better readability
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+
+TKB30 by Subregion:
+
+- Lowest TKB30 (Highest Risk): Pacific (0.979091). This subregion has the lowest TKB30, indicating that a higher proportion of loans here are falling into the DPD > 30 category. Given its substantial total_os (over 489 million), this is a significant area of concern.
+Highest TKB30 (Lowest Risk): East North Central (0.983904). This subregion shows the best performance in terms of loan quality.
+
+- Other subregions like West South Central (0.979815) and West North Central (0.979914) also have relatively lower TKB30 values.
+
+- Region with the Lowest TKB30:
+The West region has the lowest TKB30 at 0.979704. This aligns with the fact that the Pacific subregion (part of the West) also has the overall lowest TKB30.
+
+- Subregion with the Lowest TKB30:
+The Pacific subregion has the absolute lowest TKB30 at 0.979091.
+
+
+In summary: The Pacific subregion, within the broader West region, represents the highest risk area in your portfolio based on the TKB30 metric. This suggests that you might want to investigate the lending practices, economic conditions, or borrower demographics specifically within the Pacific subregion to understand and mitigate this higher risk.
+
+##Breakdown West and Midwest
+
+# 1. Filter for West and Midwest only
+df_comp = df_merged_with_state[df_merged_with_state['region'].isin(['West', 'Midwest'])]
+
+# 2. Create a Pivot Table of Purpose Share
+purpose_pivot = df_comp.pivot_table(
+    index='purpose',
+    columns='region',
+    values='funded_amount',
+    aggfunc='sum'
+)
+
+# 3. Normalize to get the percentage (Share) for each column
+purpose_share = purpose_pivot.div(purpose_pivot.sum(axis=0), axis=1)
+
+print("Purpose Share Comparison:")
+print(purpose_share)
+
+- Debt Consolidation Dominance: Both regions show that 'debt_consolidation' is the overwhelmingly largest purpose for loans, accounting for nearly 60% of the funded amount in both the Midwest (0.5906) and the West (0.5947). This indicates a primary driver for borrowing across both regions.
+
+- Credit Card Loans: 'Credit_card' related loans are the second largest category, with a slightly higher share in the Midwest (0.2664) compared to the West (0.2446).
+Other Purposes: The 'other' category is more prominent in the West (0.0443) than in the Midwest (0.0351), suggesting a broader range of less common loan needs in the West.
+
+- Major Purchase & Small Business: The West has a higher proportion of loans for 'major_purchase' (0.0179 vs 0.0143) and 'small_business' (0.0125 vs 0.0083) compared to the Midwest.
+
+- Renewable Energy & Vacation: The West also shows a higher share in 'renewable_energy' and 'vacation' loans, although these are very small percentages overall.
+Wedding Loans: Notably, 'wedding' loans are present in the West (0.000032) but show as NaN (Not a Number) in the Midwest, implying no such loans were funded in the Midwest for this dataset.
+
+
+In summary: While 'debt_consolidation' is universally the main loan purpose, there are subtle differences, with the West showing a slightly more diversified distribution towards 'other', 'major_purchase', and 'small_business' loans. The absence of 'wedding' loans in the Midwest could be an interesting point for further investigation regarding regional lending strategies or demand.
+
+
+
+# Compare the difference between West and Midwest
+purpose_share['diff'] = purpose_share['West'] - purpose_share['Midwest']
+
+# Top (West has more of this than Midwest)
+print("Top Concentration in West:")
+print(purpose_share.sort_values('diff', ascending=False).head(3))
+
+# Bottom (West has less of this than Midwest)
+print("Bottom Concentration in West:")
+print(purpose_share.sort_values('diff', ascending=True).head(3))
+
+#Cohort Month
+
+def map_dpd(status):
+    if status == 'Current':
+        return 0
+    elif status == 'In Grace Period':
+        return 0
+    elif status == 'Late (16-30 days)':
+        return 30
+    elif status == 'Late (31-120 days)':
+        return 60  # simplified midpoint
+    elif status == 'Default':
+        return 90
+    elif status == 'Charged Off':
+        return 120
+    else:
+        return 0
+
+df['dpd'] = df['loan_status'].apply(map_dpd)
+
+def calc_tkb(df, threshold):
+    return 1 - (df[df['dpd'] > threshold]['OS'].sum() / df['OS'].sum())
+
+tkb0 = calc_tkb(df, 0)
+tkb30 = calc_tkb(df, 30)
+tkb60 = calc_tkb(df, 60)
+tkb90 = calc_tkb(df, 90)
+
+df['issue_date'] = pd.to_datetime(df['issue_date'])
+df['cohort_month'] = df['issue_date'].dt.to_period('M')
+df['cohort_year'] = df['issue_date'].dt.year
+
+cohort = df.groupby('cohort_month').agg({
+    'OS': 'sum',
+    'ENR': 'sum',
+    'customer_id_clean_y': 'nunique'
+}).reset_index()
+
+def cohort_tkb(group):
+    return pd.Series({
+        'TKB30': calc_tkb(group, 30),
+        'TKB60': calc_tkb(group, 60),
+        'TKB90': calc_tkb(group, 90)
+    })
+
+tkb_cohort = df.groupby('cohort_month').apply(cohort_tkb).reset_index()
+
+cohort = cohort.merge(tkb_cohort, on='cohort_month')
+
+print(cohort)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Convert 'cohort_month' to datetime for proper plotting
+cohort['cohort_month_dt'] = cohort['cohort_month'].astype(str)
+
+plt.figure(figsize=(14, 7))
+sns.lineplot(x='cohort_month_dt', y='TKB30', data=cohort, marker='o')
+plt.title('TKB30 Performance by Cohort Month')
+plt.xlabel('Cohort Month')
+plt.ylabel('TKB30')
+plt.ylim(cohort['TKB30'].min() * 0.9, 1.01) # Adjust y-axis for better visibility
+plt.xticks(rotation=90) # Rotate x-axis labels for readability
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+#DPD untuk purpose
+
+df.groupby('term')['dpd'].mean()
+df.groupby('grade')['dpd'].mean()
+df.groupby('purpose')['dpd'].mean()
+
+DPD home ownership by years
+
+df.groupby('home_ownership')['dpd'].mean()
+df.groupby('emp_length')['dpd'].mean()
+
+#DPD berdasarkan annual Income dibagi 4 langsung
+
+df['income_group'] = pd.qcut(df['annual_inc'], 4)
+
+df.groupby('income_group')['dpd'].mean()
+
+#DPD berdasarkan Verification status
+
+df.groupby('verification_status')['dpd'].mean()
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Calculate the mean DPD for each verification status
+dpd_by_verification = df.groupby('verification_status')['dpd'].mean().reset_index()
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x='verification_status', y='dpd', data=dpd_by_verification, palette='viridis', hue='verification_status', legend=False)
+plt.title('Average DPD by Verification Status')
+plt.xlabel('Verification Status')
+plt.ylabel('Average DPD')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+
+#DPD dari type pembayaran
+
+df['type'] = df['type'].replace({'Individual': 'INDIVIDUAL', 'Joint App': 'JOINT'})
+df.groupby('term')['dpd'].mean()
+df.groupby('purpose')['dpd'].mean()
+df.groupby('type')['dpd'].mean()
+
+This shows that 'DIRECT_PAY' has the highest average DPD, indicating a higher risk, while 'JOINT' has the lowest average DPD, suggesting lower risk.
+
+grade_mapping = {'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 6, 'G': 7}
+df['grade_numeric'] = df['grade'].map(grade_mapping)
+
+#Korelasi dari int rate, annual inc, grade numeric
+
+df[['int_rate', 'annual_inc', 'grade_numeric']].corr()
+
+- int_rate and grade_numeric (0.944941): There is a very strong positive correlation between int_rate and grade_numeric. Since a higher grade_numeric value indicates a worse loan grade (e.g., A=1, G=7), this means that loans with higher interest rates tend to have worse credit grades, which is expected.
+
+- int_rate and annual_inc (-0.070980): There is a weak negative correlation between int_rate and annual_inc. This suggests that as annual income increases, the interest rate tends to slightly decrease, which aligns with the idea that higher income borrowers might be considered less risky.
+
+- annual_inc and grade_numeric (-0.073263): There is also a weak negative correlation between annual_inc and grade_numeric. This implies that higher annual income is slightly associated with better loan grades (lower grade_numeric values).
+
+df.groupby('grade')['int_rate'].mean()
+df.groupby('purpose')['int_rate'].mean()
+df.groupby('annual_inc')['int_rate'].mean()
+
+#Count verification Status
+
+df['verification_status'].value_counts()
+
+In Fintech, "Not Verified" doesn't mean we don't know who they are. It usually means the user didn't upload a payslip, but we verified them using Alternative Data (like their phone bill, e-commerce history, or bank scrapings).
+
+
+
+The Business Logic to tell your Coach:
+
+- Market Expansion: We accept "Not Verified" to reach the Unbanked population (freelancers/SMEs) who don't have formal payslips but have high income.
+
+- The "Yield" Play: Look at your data—I bet the avg_rate for "Not Verified" is much higher than "Verified." We charge them more to cover the risk of them being "bad."
+
+- Low Barrier to Entry: It makes the "Customer Journey" faster. If you require everyone to be "Verified," they might go to a competitor instead.
+
+#Stability?
+
+# 1. Grouping by Employment Length
+# Note: Ensure you use the 'emp_length' column from your customer table
+emp_stability = df_merged.groupby('emp_length').agg(
+    total_os=('funded_amount', 'sum'),
+    dpd30_os=('funded_amount', lambda x: x[df_merged.loc[x.index, 'is_dpd_gt30']].sum())
+)
+
+emp_stability['TKB30'] = 1 - (emp_stability['dpd30_os'] / emp_stability['total_os'])
+print(emp_stability.sort_values('TKB30', ascending=False))
+
+# Compare Individual n Joint total OS n tkb30
+
+# 1. Identify Application Type based on annual_inc_joint
+# If annual_inc_joint is > 0, it's a 'JOINT' application
+
+# Ensure 'annual_inc_joint' is in df_merged
+if 'annual_inc_joint' not in df_merged.columns:
+    df_merged = pd.merge(df_merged, df[['loan_id', 'annual_inc_joint']], on='loan_id', how='left')
+
+df_merged['app_type'] = df_merged['annual_inc_joint'].apply(lambda x: 'JOINT' if x > 0 else 'INDIVIDUAL')
+
+# 2. Calculate TKB30 gap
+app_type_risk = df_merged.groupby('app_type').agg(
+    total_os=('funded_amount', 'sum'),
+    tkb30=('funded_amount', lambda x: 1 - (x[df_merged.loc[x.index, 'is_dpd_gt30']].sum() / x.sum()))
+)
+print(app_type_risk)
+
+#Cohort Analysis DPD30 rate
+
+# Use the cohort_analysis table we made earlier
+cohort_analysis['DPD30_Rate'] = 1 - cohort_analysis['TKB30']
+
+# This shows the 'Bad Rate'. You want to see this number GO DOWN over time.
+print(cohort_analysis[['issue_year', 'DPD30_Rate']])
+
+#Comparing soal number 7
+
+# Ensure 'emp_length_num' and 'has_house' are present in df_merged_with_addr
+df_merged_with_addr['emp_length_num'] = df_merged_with_addr['emp_length'].str.extract(r'(\d+)').fillna(0).astype(int)
+df_merged_with_addr['has_house'] = df_merged_with_addr['home_ownership'].isin(['OWN', 'MORTGAGE'])
+
+# 1. Define our groups: Anomaly (2012) vs. Mature (2019)
+df_anomaly = df_merged_with_addr[df_merged_with_addr['issue_year'] == 2012]
+df_mature = df_merged_with_addr[df_merged_with_addr['issue_year'] == 2019]
+
+# 2. Create the comparison dictionary
+comparison = {
+    'Metric': ['Ownership Rate (Homeowner %)', 'Avg Annual Income', 'Avg Emp Length (Years)', 'Top State', 'Top Purpose', 'Avg Interest Rate'],
+    'Anomaly (2012)': [
+        df_anomaly['has_house'].mean(),
+        df_anomaly['annual_inc'].mean(),
+        df_anomaly['emp_length_num'].mean(),
+        df_anomaly['addr_state'].mode()[0],
+        df_anomaly['purpose'].mode()[0],
+        df_anomaly['int_rate'].mean()
+    ],
+    'Mature (2019)': [
+        df_mature['has_house'].mean(),
+        df_mature['annual_inc'].mean(),
+        df_mature['emp_length_num'].mean(),
+        df_mature['addr_state'].mode()[0],
+        df_mature['purpose'].mode()[0],
+        df_mature['int_rate'].mean()
+    ]
+}
+
+df_profile = pd.DataFrame(comparison)
+print(df_profile)
+
+The comparison between the 2012 (Anomaly) and 2019 (Mature) cohorts reveals interesting trends:
+
+- Ownership Rate (Homeowner %): Slightly decreased from 63.4% in 2012 to 60.8% in 2019.
+
+- Average Annual Income: Increased from $76,163 in 2012 to $$76,163 in 2012 to $84,887 in 2019, suggesting loans are being issued to borrowers with higher incomes.
+
+- Average Employment Length (Years): Decreased from 6.5 years in 2012 to 5.09 years in 2019, indicating a shift towards borrowers with slightly less job tenure.
+
+- Top State: Remained California (CA) for both years, highlighting its consistent importance in the portfolio.
+
+- Top Purpose: Remained 'debt_consolidation' for both years, indicating it's a primary loan purpose.
+
+- Average Interest Rate: Significantly decreased from 18.36% in 2012 to 12.82% in 2019, suggesting more competitive rates or a shift towards lower-risk borrowers in 2019.
+
+- Look closely: In 2012, your borrowers actually had more homeownership (63%) and longer job stability (6.5 years) than in 2019. Yet, 2012 was your "worst" year for TKB30.
+
+Why? Because in 2012, you were charging 18.3% interest. By 2019, you dropped it to 12.8%. This is "Adverse Selection"—when you charge too much, only the desperate (risky) people say yes. In 2019, you became a "Premium" lender, attracting better borrowers with better rates.
+
+# 1. Filter for the "Dip" years
+df_dips = df_merged[df_merged['issue_year'].isin([2014, 2017])]
+
+# 2. Create the comparison table
+dip_comparison = df_dips.groupby('issue_year').agg(
+    avg_income=('annual_inc', 'mean'),
+    homeowner_rate=('has_house', 'mean'),
+    avg_emp_len=('emp_length_num', 'mean'),
+    avg_int_rate=('int_rate', 'mean'),
+    not_verified_rate=('verification_status', lambda x: (x == 'Not Verified').mean()),
+    tkb30=('funded_amount', lambda x: 1 - (x[df_dips.loc[x.index, 'is_dpd_gt30']].sum() / x.sum()))
+).T
+
+print("The Dip Comparison (2014 vs 2017):")
+print(dip_comparison)
+
+# Calculate TKB30 by Year and Verification specifically for 2017
+df_2017 = df_merged[df_merged['issue_year'] == 2017]
+verif_quality_2017 = df_2017.groupby('verification_status').agg(
+    tkb30=('funded_amount', lambda x: 1 - (x[df_2017.loc[x.index, 'is_dpd_gt30']].sum() / x.sum())),
+    avg_rate=('int_rate', 'mean')
+)
+print("2017 Verification Analysis:")
+print(verif_quality_2017)
