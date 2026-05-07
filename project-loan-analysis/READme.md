@@ -6,7 +6,7 @@
     <img src="https://img.shields.io/badge/View%20Python%20Code-3776AB?style=for-the-badge&logo=python&logoColor=white" />
   </a>
   &nbsp;
-  <a href="../assets/Fitriyatus%20Sholihah-FSDA-2026-03-36982485677-Certificate%20of%20Achievement.pdf" target="_blank">
+  <a href="../assets/Loan_Portfolio_Risk_Analysis_Fitriyatus_Sholihah (1).pdf" target="_blank">
     <img src="https://img.shields.io/badge/View%20Deck%20(PDF)-A68966?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" />
   </a>
 </p>
