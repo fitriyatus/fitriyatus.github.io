@@ -1,5 +1,5 @@
 # 🏦 Loan Portfolio Risk Analysis
-> **Impact:** Optimized a <mark><b>$2.80B outstanding portfolio</b></mark> and identified regional risk exposure for <mark><b>$1.2 billion in assets</b></mark>.
+> **Impact:** Evaluated a <mark><b>$2.80B outstanding portfolio</b></mark> and identified regional risk exposure for <mark><b>$1.2 billion in assets</b></mark>.
 
 <p align="center">
   <a href="python_risk_analysis.ipynb">
@@ -25,7 +25,7 @@ This project evaluates the performance and risk profile of a consumer lending po
 ---
 
 ## 📊 Visual Analysis & Technical Insights
-*These visuals represent the risk assessment charts generated through the Python analytical workflow.*
+*The following visuals represent the risk assessment heatmaps and distribution charts generated through the Python analytical workflow.*
 
 ---
 
@@ -39,7 +39,7 @@ This project evaluates the performance and risk profile of a consumer lending po
       <h4>Key Insights:</h4>
       <ul>
         <li><b>Performance Growth:</b> Visualizes a steady improvement in cohort performance from <b>96.2% (2012)</b> to <mark><b>98.8% (2019)</b></mark>.</li>
-        <li><b>Metric Focus:</b> Tracks TKB30 (Success Rate) to evaluate long-term portfolio health.</li>
+        <li><b>Metric Focus:</b> Tracks TKB30 (Success Rate) to evaluate long-term portfolio stability and recovery trends.</li>
       </ul>
     </td>
   </tr>
@@ -47,17 +47,17 @@ This project evaluates the performance and risk profile of a consumer lending po
 
 ---
 
-### 2. Loan Duration Risk Gap (36 vs 60 Months)
+### 2. TKB Performance by Loan Purpose (Heatmap)
 <table>
   <tr>
     <td width="60%">
-      <img src="../assets/loan_duration_gap.png" alt="36 vs 60 Month Risk" style="border-radius: 10px; border: 1px solid #A68966;">
+      <img src="../assets/purpose_issue_heatmap.png" alt="TKB Performance Heatmap" style="border-radius: 10px; border: 2px solid #A68966;">
     </td>
     <td valign="top">
       <h4>Key Insights:</h4>
       <ul>
-        <li><b>Mispricing Issue:</b> 60-month loans show a lower TKB30 (97.87%) despite carrying higher interest rates.</li>
-        <li><b>Risk Recommendation:</b> Tighten credit standards for 60-month terms to align with the higher risk profile.</li>
+        <li><b>Risk Concentration:</b> Identifies specific loan purposes and issue years with lower TKB performance.</li>
+        <li><b>High-Risk Detection:</b> Pinpoints clusters where delinquency rates are significantly higher than the portfolio average.</li>
       </ul>
     </td>
   </tr>
@@ -65,17 +65,17 @@ This project evaluates the performance and risk profile of a consumer lending po
 
 ---
 
-### 3. Regional Default Performance
+### 3. Average Interest Rate by Purpose (Heatmap)
 <table>
   <tr>
     <td width="60%">
-      <img src="../assets/loan_regional_map.png" alt="Regional Performance Map" style="border-radius: 10px; border: 1px solid #A68966;">
+      <img src="../assets/interest_purpose_heatmap.png" alt="Interest Rate Heatmap" style="border-radius: 10px; border: 2px solid #A68966;">
     </td>
     <td valign="top">
       <h4>Key Insights:</h4>
       <ul>
-        <li><b>Geographic Concentration:</b> Identifies the West region as a lower-performance zone.</li>
-        <li><b>Asset Protection:</b> Strategy focuses on rebalancing exposure away from high-risk regions to safeguard <mark><b>$1.2B in assets</b></mark>.</li>
+        <li><b>Pricing vs. Risk:</b> Analyzes if the interest rates appropriately compensate for the risk in high-risk loan purposes.</li>
+        <li><b>Profitability Check:</b> Helps identify if specific categories are "mispriced" relative to their default probability.</li>
       </ul>
     </td>
   </tr>
@@ -83,17 +83,19 @@ This project evaluates the performance and risk profile of a consumer lending po
 
 ---
 
-### 4. Income-Based Delinquency Risk
+### 4. Geographic Concentration (Top States & Sub-Regions)
 <table>
   <tr>
     <td width="60%">
-      <img src="../assets/loan_income_risk.png" alt="Income Risk Group" style="border-radius: 10px; border: 1px solid #A68966;">
+      <img src="../assets/top_states_bar.png" alt="Top 4 State Bar Chart" style="border-radius: 10px; border: 2px solid #A68966;">
+      <br><br>
+      <img src="../assets/sub_region_bar.png" alt="Sub Region Bar Chart" style="border-radius: 10px; border: 2px solid #A68966;">
     </td>
     <td valign="top">
       <h4>Key Insights:</h4>
       <ul>
-        <li><b>Demographic Risk:</b> Demonstrates that low-income borrowers have <mark><b>~60% higher</b></mark> delinquency rates.</li>
-        <li><b>Action:</b> Recommended reduction in exposure to high-risk loan purposes within low-income segments.</li>
+        <li><b>Regional Exposure:</b> Analyzes the top 4 states and sub-regions to detect geographic concentration risks.</li>
+        <li><b>Asset Protection:</b> Strategy focuses on rebalancing exposure away from lower-performing sub-regions to safeguard <mark><b>$1.2B in assets</b></mark>.</li>
       </ul>
     </td>
   </tr>
@@ -102,8 +104,8 @@ This project evaluates the performance and risk profile of a consumer lending po
 ---
 
 ## 🛠️ Tools & Methods
-- **Python Libraries:** Pandas for processing 270.3K records, Matplotlib/Seaborn for risk visualization.
-- **Methods:** Exploratory Data Analysis (EDA), Loan Performance Modeling (TKB30/DPD30), Geographic Concentration Analysis, Segment Risk Analysis.
+- **Python Libraries:** Pandas for data manipulation, Seaborn/Matplotlib for heatmap and distribution visualization.
+- **Methods:** Cohort Analysis, Heatmap Risk Identification, Geographic Concentration Assessment, Pricing Strategy Analysis.
 
 ---
 <p align="center">
