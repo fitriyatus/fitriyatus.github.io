@@ -2,7 +2,7 @@
 > **Impact:** Evaluated a <mark><b>$2.80B outstanding portfolio</b></mark> and identified regional risk exposure for <mark><b>$1.2 billion in assets</b></mark>.
 
 <p align="center">
-  <a href="RevoFin Loan Analysis.ipynb">
+  <a href="python code.txt">
     <img src="https://img.shields.io/badge/View%20Python%20Code-3776AB?style=for-the-badge&logo=python&logoColor=white" />
   </a>
   &nbsp;
