@@ -17,11 +17,11 @@
 
 ---
 
-## 📊 Project 5: [Project Title Here]
-* **Objective:** [Briefly describe what you wanted to achieve]
-* **Impact:** <mark><b>[Key Result, e.g., Reduced Churn by 2%]</b></mark>
-* **Tools:** `Python`, `Looker`
-* [**View Details →**](./project-folder-5/)
+## 📊 Project 5: CPaaS User Segmentation Analysis: Personalization, Retention & Upsell Opportunities
+* **Objective:** The primary goal is to build an adapted RFM behavioral architecture to drive user personalization, mitigate backend churn, and run high-margin cross-sell campaigns. It specifically aims to identify high-value accounts, detect low-engagement users at risk of churning, and understand hourly traffic patterns to optimize backend operational capacity. Process
+* **Impact:** <mark><b>The analysis established 3 segments: Champions (6 users generating ~Rp 3M revenue), Loyal Clients (7 users), and Low-Intensity clients (7 users) while discovering a universal ~78% failure rate in the Voice Call channel. To protect the pipeline and increase margins, the strategy recommends rerouting failed peak-hour Voice requests to SMS or WhatsApp for Champions, offering bundled discount credits to Loyal tiers, and migrating Low-Intensity users to automated self-service developer playbooks.
+* **Tools:** `Python`, `Google Collab`
+* [**View Details →**](./project-cpass/)
 
 ---
 
