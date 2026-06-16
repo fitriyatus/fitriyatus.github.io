@@ -33,7 +33,7 @@ This project analyzes client behavior for OCA Indonesia, a Telkom Indonesia CPaa
 <table>
   <tr>
     <td width="60%">
-      <img src="../assets/newplot (5).png.png" alt="RFM Scatter Plot" style="border-radius: 10px; border: 2px solid #A68966;">
+      <img src="../assets/newplot (5).png" alt="RFM Scatter Plot" style="border-radius: 10px; border: 2px solid #A68966;">
     </td>
     <td valign="top">
       <h4>Key Insights:</h4>
