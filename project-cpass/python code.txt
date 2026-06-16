@@ -1,0 +1,448 @@
+#import library
+import pandas as pd
+import numpy as np
+
+#show to read data in google sheet
+sheet_url = 'https://drive.google.com/file/d/16pd26megDqmjxfCfkJUc648oH2CmR0V7/view'
+sheet_url_trf = sheet_url.replace('/edit?gid=','/export?format=csv&gid=')
+print(sheet_url_trf)
+
+
+import re
+
+match = re.search(r'/d/([a-zA-Z0-9_-]+)', sheet_url)
+file_id = match.group(1) if match else None
+
+if file_id:
+    sheet_url_trf = f'https://drive.google.com/uc?export=download&id={file_id}'
+    df_c = pd.read_csv(sheet_url_trf)
+    df_c.head()
+else:
+    print('Could not extract file ID from the Google Drive URL.')
+
+df_c.head()
+
+#show to read data in google sheet
+sheet_url = 'https://docs.google.com/spreadsheets/d/1yxfFwU-HOyYiAU3PIj2KhZrWI7oUd354_FsuTGRcUU0/edit?gid=1017766973#gid=1017766973'
+sheet_url_trf = sheet_url.replace('/edit?gid=','/export?format=csv&gid=')
+print(sheet_url_trf)
+
+df_u = pd.read_csv(sheet_url_trf)
+df_u.head()
+
+df_u.info()
+
+df_u['join_date'] = pd.to_datetime(df_u['join_date'])
+
+df_u.head()
+
+df_c.info()
+
+df_c['created_at'] = df_c['created_at'].str.replace('0025', '2025', regex=False)
+df_c['created_at'] = pd.to_datetime(df_c['created_at'])
+df_c['date'] = df_c['created_at'].dt.date
+df_c['hour'] = df_c['created_at'].dt.hour
+df_c['month'] = df_c['created_at'].dt.to_period('M')
+df_c['day_name'] = df_c['created_at'].dt.day_name()
+
+df_c.head()
+
+df = df_c.merge(
+    df_u,
+    on='user_id',
+    how='left'
+)
+
+df.head()
+
+df['created_at'] = pd.to_datetime(df['created_at'])
+
+df = df[
+    df['created_at'] <= '2025-03-31 23:59:59'
+].copy()
+
+df['week'] = df['created_at'].dt.isocalendar().week
+
+snapshot_date = df['created_at'].max() + pd.Timedelta(days=1)
+
+recency = (
+    df.groupby('user_id')['created_at']
+      .max()
+      .reset_index()
+)
+
+recency['recency'] = (
+    snapshot_date - recency['created_at']
+).dt.days
+
+recency = recency[['user_id','recency']]
+
+weekly_volume = (
+    df.groupby(['user_id','week'])['volume']
+      .sum()
+      .reset_index(name='weekly_volume')
+)
+
+frequency = (
+    weekly_volume.groupby('user_id')['weekly_volume']
+                 .mean()
+                 .reset_index()
+                 .rename(columns={'weekly_volume':'frequency'})
+)
+
+print (weekly_volume)
+
+    user_id    frequency
+    0    user_1  1795.714286
+    1   user_10   112.714286
+    2   user_11   115.000000
+    3   user_12   108.571429
+    4   user_13   113.571429
+    5   user_14   110.642857
+    6   user_15   109.500000
+    7   user_16   117.142857
+    8   user_17   110.428571
+    9   user_18   116.428571
+
+monetary = (
+    df[df['is_charge'] == True]
+      .groupby('user_id')['price']
+      .sum()
+      .reset_index()
+      .rename(columns={
+          'price':'monetary'
+      })
+)
+
+rfm = recency.merge(
+    frequency,
+    on='user_id'
+)
+
+rfm = rfm.merge(
+    monetary,
+    on='user_id'
+)
+
+if rfm['recency'].nunique() == 1:
+    rfm['R'] = 3
+else:
+    rfm['R'] = pd.qcut(
+        rfm['recency'],
+        q=3,
+        labels=[3,2,1],
+        duplicates='drop'
+    )
+
+rfm['F'] = pd.qcut(
+    rfm['frequency'].rank(method='first'),
+    q=3,
+    labels=[1,2,3]
+)
+
+rfm['M'] = pd.qcut(
+    rfm['monetary'].rank(method='first'),
+    q=3,
+    labels=[1,2,3]
+)
+
+rfm['RFM_Score'] = (
+    rfm['R'].astype(str)
+    + rfm['F'].astype(str)
+    + rfm['M'].astype(str)
+)
+
+def assign_segment(row):
+
+    if row['R'] == 3 and row['F'] == 3 and row['M'] == 3:
+        return 'Champions'
+
+    elif row['F'] >= 2 and row['M'] >= 2:
+        return 'Loyal Clients'
+
+    elif row['R'] == 1:
+        return 'At Risk'
+
+    else:
+        return 'Dormant'
+
+rfm['segment'] = rfm.apply(
+    assign_segment,
+    axis=1
+)
+
+df['hour'] = df['created_at'].dt.hour
+
+favorite_hour = (
+    df.groupby(['user_id','hour'])
+      .size()
+      .reset_index(name='count')
+      .sort_values(
+          ['user_id','count'],
+          ascending=[True,False]
+      )
+      .drop_duplicates('user_id')
+      [['user_id','hour']]
+      .rename(columns={
+          'hour':'favorite_hour'
+      })
+)
+
+rfm = rfm.merge(
+    favorite_hour,
+    on='user_id'
+)
+
+df['day_name'] = df['created_at'].dt.day_name()
+
+favorite_day = (
+    df.groupby(['user_id','day_name'])
+      .size()
+      .reset_index(name='count')
+      .sort_values(
+          ['user_id','count'],
+          ascending=[True,False]
+      )
+      .drop_duplicates('user_id')
+      [['user_id','day_name']]
+      .rename(columns={
+          'day_name':'favorite_day'
+      })
+)
+
+rfm = rfm.merge(
+    favorite_day,
+    on='user_id'
+)
+
+rfm['segment'].value_counts()
+
+rfm.groupby('segment')['monetary'].sum()
+
+rfm['favorite_hour'].value_counts()
+
+print(rfm)
+
+rfm['RFM_Score'].value_counts()
+
+GSHEET_URL = 'https://docs.google.com/spreadsheets/d/1xbxOTeE6ihnp6iBA_yz1mJimR-z2sAEDQNkQ4crh92E/edit?gid=884117664#gid=884117664'
+GSHEET_URL_CSV = GSHEET_URL.replace('/edit?gid=', '/export?format=csv&gid=')
+rfm_segments = pd.read_csv(GSHEET_URL_CSV)
+
+# Ubah score menjadi string agar bisa dicombine dengan data kita
+rfm_segments['rfm_score'] = rfm_segments['rfm_score'].astype(str)
+rfm_segments
+
+rfm_final = rfm.merge(rfm_segments, how='left', left_on='RFM_Score', right_on='rfm_score')
+rfm_final
+
+rfm_final['segment_x'].value_counts()
+
+rfm_final['Actionable'].value_counts()
+
+rfm_final.groupby(['segment_x'])[['recency', 'frequency', 'monetary']].mean()
+
+rfm_complete = rfm_final[['user_id', 'segment_x', 'Activity', 'Actionable']].merge(df, how='left', on='user_id')
+rfm_complete
+
+# Then you can groupby and choose which column you want to interpret
+# This is for illustration purpose only
+numerical_column = rfm_complete.select_dtypes(include='number').columns
+
+rfm_complete.groupby('segment_x')[numerical_column].mean()
+
+- Champions (R=3, F=3, M=3):
+They send a lot of messages per week (high frequency).
+They spend the most on paid traffic.
+Recently active (in your data all users are recent).
+
+    CPaaS meaning: heavy, high-value CPaaS clients. These are likely big enterprises or very active businesses.
+
+    What they need: stability, high deliverability, volume discounts, account management, early access to new channels (e.g., WhatsApp, RCS, voice).
+
+- Loyal Clients (mid–high F & M, not necessarily max):
+Send messages regularly with good spend, but not at the very top.
+
+    CPaaS need: upsell opportunities (new channels, automation features, analytics), retention focus.
+
+- Dormant (low F, low M):
+They use CPaaS rarely and spend little, even though they are “recent” here.
+
+  CPaaS need: activation campaigns, education (“what else can you do with CPaaS?”), maybe simple pricing or use-case playbooks.
+
+segment_profile = rfm.groupby('segment').agg(
+    users=('user_id', 'nunique'),
+    avg_recency=('recency', 'mean'),
+    avg_frequency=('frequency', 'mean'),
+    avg_monetary=('monetary', 'mean'),
+)
+
+print(segment_profile)
+
+rfm.groupby('segment')['favorite_day'].value_counts(normalize=True)
+rfm.groupby('segment')['favorite_hour'].value_counts(normalize=True)
+
+# rfm_complete.groupby('segment_x')[numerical_column].describe()
+
+import plotly.express as px
+
+fig = px.scatter(
+    rfm_final,
+    x='frequency',
+    y='monetary',
+    size='frequency',
+    color='segment_x',
+    hover_name='user_id',
+    log_y=True,
+    title='RFM Scatter Plot: Recency vs Monetary by Segment (Size=Frequency)',
+    labels={
+        'frequency': 'Frequency',
+        'monetary': 'Monetary Value',
+        'frequency': 'Frequency',
+        'segment_x': 'Segment'
+    }
+)
+
+fig.update_layout(showlegend=True)
+fig.show()
+
+rfm.info()
+
+# rfm.to_csv('df_u.csv', index=False)
+
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+
+# # Aggregate volume per user per hour
+# hourly_volume_per_user = (
+#     df.groupby(['user_id', 'hour'])['volume'].sum().reset_index()
+# )
+
+# # Create a pivot table for the heatmap
+# heatmap_data = hourly_volume_per_user.pivot_table(
+#     index='user_id',
+#     columns='hour',
+#     values='volume'
+# ).fillna(0) # Fill NaN values (hours with no activity) with 0
+
+# # Create the heatmap
+# plt.figure(figsize=(15, 10))
+# sns.heatmap(heatmap_data, cmap='viridis', fmt='g', linewidths=.5)
+# plt.title('Volume per User by Hour of Day')
+# plt.xlabel('Hour of Day')
+# plt.ylabel('User ID')
+# plt.tight_layout()
+# plt.show()
+
+df_paid = df[df['is_charge'] == True]
+
+channel_stats = (
+    df_paid
+    .groupby('channel')
+    .agg(
+        users_in_channel          = ('user_id', 'nunique'),
+        paid_transactions_channel = ('transaction_id', 'nunique'),
+        total_paid_volume         = ('volume', 'sum'),
+        total_paid_revenue        = ('price', 'sum')
+    )
+    .reset_index()
+)
+
+# create tiers by revenue quantiles
+channel_stats['revenue_tier'] = pd.qcut(channel_stats['total_paid_revenue'], q=3,
+                                        labels=['Low', 'Medium', 'High'])
+
+    channel  users_in_channel  paid_transactions_channel  total_paid_volume  \
+    0    call                20                       2788               2788   
+    1   email                20                      31427              31427   
+    2     sms                20                      19934              23626   
+    3      wa                20                      42387              42387   
+
+    total_paid_revenue revenue_tier  
+    0            2304220          Low  
+    1            1571350          Low  
+    2            9967000         High  
+    3           10257850         High  
+
+rfm_complete = rfm_complete.merge(channel_stats, on='channel', how='left')
+
+print(rfm_complete[rfm_complete['segment_x'] == 'Champions'][['segment_x', 'channel']])
+
+channel_counts_by_segment = rfm_complete.groupby(['segment_x', 'channel']).size().reset_index(name='count')
+print(channel_counts_by_segment)
+
+import pandas as pd
+
+def classify_delivery_stage(status):
+    status = str(status).lower()
+    if status in ['submitted']:
+        return 'submitted'
+    elif status in ['processed']:
+        return 'processed'
+    elif status in ['sent']:
+        return 'sent'
+    elif status in ['delivered', 'answered']:
+        return 'delivered'
+    elif status in ['opened', 'read', 'clicked']:
+        return 'engaged'
+    elif status in ['failed', 'rejected', 'rna']:
+        return 'failed'
+    else:
+        return 'unknown'
+
+# Ensure 'delivery_stage' is created in df before merging into rfm_complete
+df['delivery_stage'] = df['status'].apply(classify_delivery_stage)
+
+# Re-create rfm_complete to include the 'delivery_stage' column
+rfm_complete = rfm_final[['user_id', 'segment_x', 'Activity', 'Actionable']].merge(df, how='left', on='user_id')
+rfm_complete = rfm_complete.merge(channel_stats, on='channel', how='left')
+
+segment_channel_metrics = rfm_complete.groupby(['segment_x', 'channel']).apply(lambda g: pd.Series({
+    'total_volume': g['volume'].sum(),
+    'failed_volume': g.loc[g['delivery_stage'] == 'failed', 'volume'].sum(),
+    'delivered_volume': g.loc[g['delivery_stage'].isin(['delivered', 'engaged', 'sent']), 'volume'].sum(),
+    'engaged_volume': g.loc[g['delivery_stage'] == 'engaged', 'volume'].sum()
+})).reset_index()
+
+segment_channel_metrics['failure_rate'] = segment_channel_metrics['failed_volume'] / segment_channel_metrics['total_volume']
+segment_channel_metrics['delivery_rate'] = segment_channel_metrics['delivered_volume'] / segment_channel_metrics['total_volume']
+segment_channel_metrics['engagement_rate'] = segment_channel_metrics['engaged_volume'] / segment_channel_metrics['total_volume']
+
+# Display the results
+print(segment_channel_metrics[['segment_x', 'channel', 'failure_rate', 'delivery_rate', 'engagement_rate']])
+
+
+
+# Re-create rfm_complete to include the 'favorite_hour' column.
+# This step is added here as a workaround due to how rfm_complete was previously constructed.
+rfm_complete = rfm_final[['user_id', 'segment_x', 'Activity', 'Actionable', 'favorite_hour']].merge(df, how='left', on='user_id')
+rfm_complete = rfm_complete.merge(channel_stats, on='channel', how='left')
+
+favorite_hour_failure_rate = (
+    rfm_complete[rfm_complete['hour'] == rfm_complete['favorite_hour']]
+    .groupby(['segment_x', 'favorite_hour'])
+    .apply(lambda g: pd.Series({
+        'total_volume': g['volume'].sum(),
+        'failed_volume': g.loc[g['delivery_stage'] == 'failed', 'volume'].sum()
+    }))
+    .reset_index()
+)
+favorite_hour_failure_rate['failure_rate'] = (
+    favorite_hour_failure_rate['failed_volume'] / favorite_hour_failure_rate['total_volume']
+)
+
+print(favorite_hour_failure_rate)
+
+failure_rate_per_hour = (
+    rfm_complete.groupby(['segment_x', 'hour'])
+    .apply(lambda g: pd.Series({
+        'total_volume': g['volume'].sum(),
+        'failed_volume': g.loc[g['delivery_stage'] == 'failed', 'volume'].sum()
+    }))
+    .reset_index()
+)
+failure_rate_per_hour['failure_rate'] = (
+    failure_rate_per_hour['failed_volume'] / failure_rate_per_hour['total_volume']
+)
+
+print(failure_rate_per_hour)
